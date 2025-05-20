@@ -5,6 +5,7 @@ Welcome to our project repository!
 ## Team Members
 
 - Kade Angell
+ - Hi! This is my final course in my CS undergrad (mostly completed at Utah State University), and I will be starting my MS in Computer Science at Colorado State University in the fall. I'm working on the airborne software team at Beta Technologies this summer in Burlington, Vermont. I interned for them last summer as well, and with NASA's Jet Propulsion Laboratory the summer before. I generally rock climb several times per week and tend to keep myself busy with personal projects. 
 - Porter Farley
   - Hello! My name is Porter, I'm a senior and preparing to graduate in the fall. I'm currently a web developer for a fintech company in Sandy working primarily in Django backend development. I love camping, hiking, and playing Spikeball in my spare time. I'm excited to be a part of this group!
 - Spencer Nichols
