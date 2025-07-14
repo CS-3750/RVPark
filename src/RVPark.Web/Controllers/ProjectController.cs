@@ -8,75 +8,129 @@ namespace BB.Web.Controllers
     [ApiController]
     public class ProjectController : Controller
     {
-        private readonly UnitOfWork _UnitOfWork;
-        private readonly IWebHostEnvironment _WebHostEnvironment;
+        private readonly UnitOfWork _unitOfWork;
+        private readonly IWebHostEnvironment _webHostEnvironment;
 
         public ProjectController(UnitOfWork unitOfWork, IWebHostEnvironment webHostEnvironment)
         {
-            _UnitOfWork = unitOfWork;
-            _WebHostEnvironment = webHostEnvironment;
+            _unitOfWork = unitOfWork;
+            _webHostEnvironment = webHostEnvironment;
         }
 
-        // GET: api/project
-        [HttpGet]
-        public IActionResult Get()
-        {
-            var allProjects = _UnitOfWork.Project.GetAll(); // Add includes if needed
-            return Json(new { data = allProjects });
-        }
-
-        // GET: api/project/5
-        [HttpGet("{id}")]
-        public IActionResult GetById(int id)
-        {
-            var project = _UnitOfWork.Project.GetById(id);
-            if (project == null)
-                return NotFound();
-
-            return Ok(project);
-        }
-
-        // POST: api/project
-        [HttpPost]
-        public IActionResult Create([FromBody] Project project)
+        // 1. Create a new project
+        [HttpPost("create")]
+        public IActionResult CreateProject([FromBody] Project project)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            _UnitOfWork.Project.Add(project);
+            project.Status = "Pending";
+            _unitOfWork.Project.Add(project);
             return Ok(new { success = true, message = "Project created successfully." });
         }
 
-        // PUT: api/project/5
-        [HttpPut("{id}")]
-        public IActionResult Update(int id, [FromBody] Project updatedProject)
+        // 2. Assign interns to a project
+        [HttpPost("{projectId}/assign-interns")]
+        public IActionResult AssignInterns(int projectId, [FromBody] List<int> internIds)
+        {
+            var project = _unitOfWork.Project.GetById(projectId);
+            if (project == null)
+                return NotFound();
+
+            foreach (var internId in internIds)
+            {
+                var assignment = new InternAssignment
+                {
+                    ProjectId = projectId,
+                    InternId = internId,
+                    AssignedDate = DateTime.UtcNow
+                };
+                _unitOfWork.InternAssignment.Add(assignment);
+            }
+            return Ok(new { success = true, message = "Interns assigned successfully." });
+        }
+
+        // 3. Update project details
+        [HttpPut("{id}/update")]
+        public IActionResult UpdateProject(int id, [FromBody] Project updatedProject)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var project = _UnitOfWork.Project.GetById(id);
+            var project = _unitOfWork.Project.GetById(id);
             if (project == null)
                 return NotFound();
 
-            // update properties manually
             project.Name = updatedProject.Name;
             project.Description = updatedProject.Description;
-            // add more fields as necessary
+            // Add other fields as needed
 
-            _UnitOfWork.Project.Update(project);
+            _unitOfWork.Project.Update(project);
             return Ok(new { success = true, message = "Project updated successfully." });
         }
 
-        // DELETE: api/project/5
-        [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
+        // 4. Update project status (e.g., Pending, Approved, Denied, Completed)
+        [HttpPut("{id}/status")]
+        public IActionResult UpdateProjectStatus(int id, [FromBody] string status)
         {
-            var project = _UnitOfWork.Project.GetById(id);
+            var project = _unitOfWork.Project.GetById(id);
+            if (project == null)
+                return NotFound();
+
+            project.Status = status;
+            _unitOfWork.Project.Update(project);
+            return Ok(new { success = true, message = "Project status updated." });
+        }
+
+        // 5. Get project details
+        [HttpGet("{id}/details")]
+        public IActionResult GetProjectDetails(int id)
+        {
+            var project = _unitOfWork.Project.GetById(id);
+            if (project == null)
+                return NotFound();
+
+            // Optionally include intern assignments, logs, etc.
+            var interns = _unitOfWork.InternAssignment.GetByProjectId(id);
+            return Ok(new { project, interns });
+        }
+
+        // 6. Delete a project
+        [HttpDelete("{id}/delete")]
+        public IActionResult DeleteProject(int id)
+        {
+            var project = _unitOfWork.Project.GetById(id);
             if (project == null)
                 return Json(new { success = false, message = "Error while deleting" });
 
-            _UnitOfWork.Project.Delete(project);
+            _unitOfWork.Project.Delete(project);
             return Json(new { success = true, message = "Delete successful" });
+        }
+
+        // 7. Approve a project (engineer/admin action)
+        [HttpPost("{id}/approve")]
+        public IActionResult ApproveProject(int id)
+        {
+            var project = _unitOfWork.Project.GetById(id);
+            if (project == null)
+                return NotFound();
+
+            project.Status = "Approved";
+            _unitOfWork.Project.Update(project);
+            return Ok(new { success = true, message = "Project approved." });
+        }
+
+        // 8. (Optional) Deny a project
+        [HttpPost("{id}/deny")]
+        public IActionResult DenyProject(int id)
+        {
+            var project = _unitOfWork.Project.GetById(id);
+            if (project == null)
+                return NotFound();
+
+            project.Status = "Denied";
+            _unitOfWork.Project.Update(project);
+            return Ok(new { success = true, message = "Project denied." });
         }
     }
 }
