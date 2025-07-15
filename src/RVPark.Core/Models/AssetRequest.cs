@@ -14,7 +14,7 @@ namespace RVPark.Core.Models
         public int Id { get; set; }
 
         public int ProjectId { get; set; }
-        public int CreatedByUserId { get; set; }
+        public string CreatedByApplicationUserId { get; set; }
 
         [Required] 
         public string Description { get; set; }
@@ -30,7 +30,7 @@ namespace RVPark.Core.Models
         [ForeignKey(nameof(ProjectId))] 
         public Project Project { get; set; }
 
-        [ForeignKey(nameof(CreatedByUserId))] 
-        public User User { get; set; }
+        [ForeignKey(nameof(CreatedByApplicationUserId))] 
+        public ApplicationUser ApplicationUser { get; set; }
     }
 }

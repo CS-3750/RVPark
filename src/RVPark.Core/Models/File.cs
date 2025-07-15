@@ -23,9 +23,9 @@ namespace RVPark.Core.Models
         public string Url { get; set; }
 
         public DateTime UploadedAt { get; set; }
-        public int CreatedByUserId { get; set; }
+        public string CreatedByApplicationUserId { get; set; }
 
-        [ForeignKey(nameof(CreatedByUserId))] 
-        public User User { get; set; }
+        [ForeignKey(nameof(CreatedByApplicationUserId))] 
+        public ApplicationUser ApplicationUser { get; set; }
     }
 }
