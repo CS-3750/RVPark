@@ -21,5 +21,6 @@ namespace RVPark.Core.Models
         public DateTime? EndDate { get; set; }
         public DateTime? EstimatedEndDate { get; set; }
         public int Status { get; set; }
+        public string Name { get; set; }
     }
 }
