@@ -1,8 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Hosting;
-using BB.Application; // adjust based on your namespace
+using RVPark.Application;
+using RVPark.Core.Models;
 
-namespace BB.Web.Controllers
+namespace RVPark.Web.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -24,28 +25,30 @@ namespace BB.Web.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            project.Status = "Pending";
+            project.Status = 0; // Assuming 0 represents "Pending" status
             _unitOfWork.Project.Add(project);
             return Ok(new { success = true, message = "Project created successfully." });
         }
 
         // 2. Assign interns to a project
         [HttpPost("{projectId}/assign-interns")]
-        public IActionResult AssignInterns(int projectId, [FromBody] List<int> internIds)
+        public IActionResult AssignInterns(int projectId, [FromBody] List<string> internUserIds)
         {
             var project = _unitOfWork.Project.GetById(projectId);
             if (project == null)
                 return NotFound();
 
-            foreach (var internId in internIds)
+            foreach (var internUserId in internUserIds)
             {
-                var assignment = new InternAssignment
+                var projectUser = new ProjectUser
                 {
                     ProjectId = projectId,
-                    InternId = internId,
-                    AssignedDate = DateTime.UtcNow
+                    ApplicationUserId = internUserId,
+                    CanAddTasks = false,
+                    CanAddFiles = false,
+                    Role = 0 // Set appropriate role for intern
                 };
-                _unitOfWork.InternAssignment.Add(assignment);
+                _unitOfWork.ProjectUser.Add(projectUser);
             }
             return Ok(new { success = true, message = "Interns assigned successfully." });
         }
@@ -71,7 +74,7 @@ namespace BB.Web.Controllers
 
         // 4. Update project status (e.g., Pending, Approved, Denied, Completed)
         [HttpPut("{id}/status")]
-        public IActionResult UpdateProjectStatus(int id, [FromBody] string status)
+        public IActionResult UpdateProjectStatus(int id, [FromBody] int status)
         {
             var project = _unitOfWork.Project.GetById(id);
             if (project == null)
@@ -90,8 +93,13 @@ namespace BB.Web.Controllers
             if (project == null)
                 return NotFound();
 
-            // Optionally include intern assignments, logs, etc.
-            var interns = _unitOfWork.InternAssignment.GetByProjectId(id);
+            // Get assigned interns (ProjectUser with Role == 0, assuming 0 is intern)
+            var interns = _unitOfWork.ProjectUser.GetAll(
+                pu => pu.ProjectId == id && pu.Role == 0,
+                null,
+                "ApplicationUser"
+            ).ToList();
+
             return Ok(new { project, interns });
         }
 
@@ -115,7 +123,7 @@ namespace BB.Web.Controllers
             if (project == null)
                 return NotFound();
 
-            project.Status = "Approved";
+            project.Status = 1; // Assuming 1 represents "Approved" status
             _unitOfWork.Project.Update(project);
             return Ok(new { success = true, message = "Project approved." });
         }
@@ -128,7 +136,7 @@ namespace BB.Web.Controllers
             if (project == null)
                 return NotFound();
 
-            project.Status = "Denied";
+            project.Status = 2; // Assuming 2 represents "Denied" status
             _unitOfWork.Project.Update(project);
             return Ok(new { success = true, message = "Project denied." });
         }

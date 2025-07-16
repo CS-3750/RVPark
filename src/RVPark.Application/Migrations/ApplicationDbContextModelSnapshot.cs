@@ -395,6 +395,10 @@ namespace RVPark.Application.Migrations
                     b.Property<DateTime?>("EstimatedEndDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime?>("StartDate")
                         .HasColumnType("datetime2");
 
