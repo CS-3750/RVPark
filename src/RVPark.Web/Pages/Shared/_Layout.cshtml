@@ -1,4 +1,12 @@
-﻿<!DOCTYPE html>
+﻿@using Microsoft.AspNetCore.Identity
+@inject SignInManager<IdentityUser> SignInManager
+@inject UserManager<IdentityUser> UserManager
+@using RVPark.Core.Models
+@{
+    var projectList = ViewData["ProjectList"] as List<Project> ?? [];
+}
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -7,46 +15,64 @@
     <script type="importmap"></script>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/RVPark.Web.styles.css" asp-append-version="true" />
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container">
-                <a class="navbar-brand" asp-area="" asp-page="/Index">RVPark.Web</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Privacy">Privacy</a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </nav>
-    </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
+
+<body>
+
+<div class="wrapper">
+    <nav class="sidebar-persistent p-3">
+        <h4 class="text-white mb-4">Canvas App</h4>
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                @if (SignInManager.IsSignedIn(User))
+                {
+                    <p>USER IS SIGNED IN</p>
+                    <p>@User.Identity?.Name</p>
+                }
+                <a class="nav-link active text-white" aria-current="page" href="#">
+                    <i class="bi bi-house-door-fill me-2"></i> Account
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-white" href="#" data-bs-toggle="offcanvas" data-bs-target="#projectsOffcanvas" aria-controls="projectsOffcanvas">
+                    <i class="bi bi-book-fill me-2"></i> Projects
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <main class="main-content">
+        @RenderBody()
+    </main>
+</div>
+
+<div class="offcanvas offcanvas-start secondary-offcanvas bg-light" tabindex="-1" id="projectsOffcanvas" aria-labelledby="projectsOffcanvasLabel">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title text-dark" id="projectsOffcanvasLabel">Your Projects</h5>
+        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
     </div>
-
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2025 - RVPark.Web - <a asp-area="" asp-page="/Privacy">Privacy</a>
+    <div class="offcanvas-body">
+        <ul class="list-group list-group-flush">
+            @ViewData["Thing"]
+            @* @foreach (var project in Model.ProjectList) *@
+            @* { *@
+            @*     <li class="list-group-item"><a href="#" class="text-decoration-none text-dark">@project.Name</a></li> *@
+            @* } *@
+        </ul>
+        <hr>
+        <div class="d-grid">
+            <button class="btn btn-outline-primary">Add New Project</button>
         </div>
-    </footer>
+    </div>
+</div>
 
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
+</body>
 
-    @await RenderSectionAsync("Scripts", required: false)
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<script src="~/js/site.js" asp-append-version="true"></script>
+
+@await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
