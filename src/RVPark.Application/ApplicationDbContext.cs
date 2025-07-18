@@ -9,8 +9,9 @@ using System.Threading.Tasks;
 
 namespace RVPark.Application
 {
-    public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
+    public class ApplicationDbContext : IdentityDbContext
     {
+        public DbSet<ApplicationUser> ApplicationUsers { get; set; }
         public DbSet<Project> Projects { get; set; }
         public DbSet<ProjectUser> ProjectUsers { get; set; }
         public DbSet<ProjectTask> ProjectTasks { get; set; }

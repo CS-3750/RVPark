@@ -14,6 +14,9 @@ Console.WriteLine($"Using connection string: {connectionString}");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 
+// DB Initializer
+builder.Services.AddScoped<DBInitializer>();
+
 // Add Identity services with ApplicationDbContext
 builder.Services.AddIdentity<IdentityUser, IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
