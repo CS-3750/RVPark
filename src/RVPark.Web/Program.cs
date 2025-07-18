@@ -1,6 +1,9 @@
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 using RVPark.Application;
+using RVPark.Core.Models;
+using RVPark.Core.Utilities;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +16,12 @@ Console.WriteLine($"Using connection string: {connectionString}");
 // Register DbContext with localdb connection string
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
+
+// builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true).AddEntityFrameworkStores<ApplicationDbContext>();
+
+builder.Services.AddSingleton<IEmailSender, FakeEmailSender>();
+
+// builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true).AddEntityFrameworkStores<ApplicationDbContext>();
 
 // Add Identity services with ApplicationDbContext
 builder.Services.AddIdentity<IdentityUser, IdentityRole>()
@@ -43,7 +52,6 @@ app.UseStaticFiles();
 app.UseRouting();
 
 app.UseAuthentication(); // Make sure to add authentication middleware
-app.UseAuthorization();
 
 app.UseSession();
 
