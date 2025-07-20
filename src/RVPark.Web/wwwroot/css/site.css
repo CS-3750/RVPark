@@ -12,15 +12,6 @@ html {
   box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
 }
 
-html {
-  position: relative;
-  min-height: 100%;
-}
-
-body {
-  margin-bottom: 60px;
-}
-
 .form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
   color: var(--bs-secondary-color);
   text-align: end;
@@ -28,4 +19,44 @@ body {
 
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
   text-align: start;
+}
+
+html, body {
+    height: 100%; /* Ensure html and body take full height */
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden; /* Prevent horizontal scrollbar from main content */
+}
+
+.wrapper {
+    display: flex;
+    min-height: 100vh; /* Ensure wrapper takes full viewport height */
+}
+
+/* Styles for the persistent sidebar */
+.sidebar-persistent {
+    width: 200px; /* Adjust as needed */
+    flex-shrink: 0; /* Prevent sidebar from shrinking */
+    background-color: #343a40; /* Dark background, similar to Canvas */
+    color: #fff;
+    padding-top: 1rem;
+    position: sticky; /* Make it sticky */
+    top: 0; /* Stick to the top */
+    height: 100vh; /* Make it full viewport height */
+    overflow-y: auto; /* Allow scrolling if content is long */
+    max-width: 100%; /* Prevent overflow beyond the screen */
+    overflow-x: hidden; /* Hide horizontal overflow */
+    white-space: nowrap; /* Prevent text wrapping */
+    text-overflow: ellipsis; /* Use ellipsis to indicate clipped text */
+}
+
+.main-content {
+    flex-grow: 1; /* Allow main content to take up remaining space */
+    padding: 1.5rem;
+}
+
+/* Adjust the offcanvas for secondary menu to potentially sit next to the main sidebar on larger screens */
+/* This is an advanced tweak if you want them side-by-side, otherwise, default offcanvas behavior works */
+.secondary-offcanvas {
+    width: 300px; /* Width of your secondary drawer */
 }
