@@ -44,6 +44,10 @@ html, body {
     top: 0; /* Stick to the top */
     height: 100vh; /* Make it full viewport height */
     overflow-y: auto; /* Allow scrolling if content is long */
+    max-width: 100%; /* Prevent overflow beyond the screen */
+    overflow-x: hidden; /* Hide horizontal overflow */
+    white-space: nowrap; /* Prevent text wrapping */
+    text-overflow: ellipsis; /* Use ellipsis to indicate clipped text */
 }
 
 .main-content {
