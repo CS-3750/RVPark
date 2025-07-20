@@ -1,10 +1,14 @@
 ﻿@using Microsoft.AspNetCore.Identity
-@inject SignInManager<IdentityUser> SignInManager
+@using RVPark.Core.Interfaces
 @inject UserManager<IdentityUser> UserManager
-@using RVPark.Core.Models
+@inject SignInManager<IdentityUser> SignInManager
+@inject IProjectService ProjectService
+
 @{
-    var projectList = ViewData["ProjectList"] as List<Project> ?? [];
+    var user = await UserManager.GetUserAsync(User);
+    var projectList = user != null ? await ProjectService.GetUserProjectsAsync(user.Id) : [];
 }
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -21,25 +25,46 @@
 <body>
 
 <div class="wrapper">
-    <nav class="sidebar-persistent p-3">
-        <h4 class="text-white mb-4">Canvas App</h4>
-        <ul class="nav flex-column">
-            <li class="nav-item">
+    <nav class="sidebar-persistent p-3 d-flex flex-column">
+        <h4 class="text-white mb-4">RVPark</h4>
+        @if (SignInManager.IsSignedIn(User))
+        {
+            <ul class="nav flex-column mb-auto">
+                <li class="nav-item">
+                    <a class="nav-link text-white" asp-area="Identity" asp-page="/Account/Manage/Index">
+                        @User.Identity?.Name
+                    </a>
+                </li>
+                <hr/>
+                <li class="nav-item">
+                    <a class="nav-link text-white" href="#" data-bs-toggle="offcanvas" data-bs-target="#projectsOffcanvas" aria-controls="projectsOffcanvas">
+                        Projects
+                    </a>
+                </li>
+            </ul>
+        }
+        
+        <!--Bottom of nav-->
+        <div class="mt-auto">
+            <ul class="nav flex-column mb-auto">
                 @if (SignInManager.IsSignedIn(User))
                 {
-                    <p>USER IS SIGNED IN</p>
-                    <p>@User.Identity?.Name</p>
+                    <li class="nav-item">
+                        <a class="nav-link active text-white" asp-area="Identity" asp-page="/Account/Logout">
+                            Logout
+                        </a>
+                    </li>
                 }
-                <a class="nav-link active text-white" aria-current="page" href="#">
-                    <i class="bi bi-house-door-fill me-2"></i> Account
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link text-white" href="#" data-bs-toggle="offcanvas" data-bs-target="#projectsOffcanvas" aria-controls="projectsOffcanvas">
-                    <i class="bi bi-book-fill me-2"></i> Projects
-                </a>
-            </li>
-        </ul>
+                else
+                {
+                    <li class="nav-item">
+                        <a class="nav-link active text-white" asp-area="Identity" asp-page="/Account/Login">
+                            Login
+                        </a>
+                    </li>
+                }
+            </ul>
+        </div>
     </nav>
 
     <main class="main-content">
@@ -55,10 +80,10 @@
     <div class="offcanvas-body">
         <ul class="list-group list-group-flush">
             @ViewData["Thing"]
-            @* @foreach (var project in Model.ProjectList) *@
-            @* { *@
-            @*     <li class="list-group-item"><a href="#" class="text-decoration-none text-dark">@project.Name</a></li> *@
-            @* } *@
+            @foreach (var project in projectList)
+            {
+                <li class="list-group-item"><a href="#" class="text-decoration-none text-dark">@project.Name</a></li>
+            }
         </ul>
         <hr>
         <div class="d-grid">

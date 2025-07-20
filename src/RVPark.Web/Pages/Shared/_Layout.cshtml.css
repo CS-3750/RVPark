@@ -46,3 +46,8 @@ button.accept-policy {
   white-space: nowrap;
   line-height: 60px;
 }
+
+.sidebar-persistent {
+    width: 500px; /* Set a fixed width for the sidebar */
+
+}
