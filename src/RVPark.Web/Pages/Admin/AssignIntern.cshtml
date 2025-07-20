@@ -1,0 +1,60 @@
+﻿@page
+@model RVPark.Application.Pages.Admin.AssignInternModel
+@{
+    ViewData["Title"] = "Assign Lead Intern";
+}
+
+<div class="container mt-5" style="max-width: 600px;">
+    <div class="d-flex justify-content-start mb-3">
+        <a href="/Admin/AdminTools" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Back to Admin Tools
+        </a>
+    </div>
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h2 class="mb-0" style="font-size: 1.5rem;">Assign Lead Intern to Project</h2>
+        </div>
+        <div class="card-body">
+
+            <form method="get" class="mb-4">
+                <div class="form-group mb-3">
+                    <label for="projectSelect" class="form-label fw-bold">Select Project:</label>
+                    <select id="projectSelect" name="projectId" class="form-select" onchange="this.form.submit()">
+                        <option disabled selected value=""> -- select a project -- </option>
+                        @foreach (var proj in Model.Projects)
+                        {
+                            if (proj.Id == Model.SelectedProjectId)
+                            {
+                                <option value="@proj.Id" selected>@proj.Name</option>
+                            }
+                            else
+                            {
+                                <option value="@proj.Id">@proj.Name</option>
+                            }
+                        }
+                    </select>
+                </div>
+                <noscript><button type="submit" class="btn btn-secondary">Load</button></noscript>
+            </form>
+
+            @if (Model.SelectedProjectId != null)
+            {
+                <form method="post">
+                    <input type="hidden" asp-for="SelectedProjectId" />
+
+                    <div class="form-group mb-3">
+                        <label for="internSelect" class="form-label fw-bold">Lead Intern:</label>
+                        <select asp-for="SelectedLeadInternId" class="form-select" id="internSelect">
+                            <option value="">-- None (remove lead) --</option>
+                            @foreach (var intern in Model.Interns)
+                            {
+                                <option value="@intern.Id">@intern.Name</option>
+                            }
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-success w-100">Assign</button>
+                </form>
+            }
+        </div>
+    </div>
+</div>
