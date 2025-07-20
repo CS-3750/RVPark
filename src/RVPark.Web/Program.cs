@@ -18,6 +18,8 @@ Console.WriteLine($"Using connection string: {connectionString}");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 
+// DB Initializer
+builder.Services.AddScoped<DBInitializer>();
 builder.Services.AddSingleton<IEmailSender, FakeEmailSender>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IProjectService, ProjectService>();
