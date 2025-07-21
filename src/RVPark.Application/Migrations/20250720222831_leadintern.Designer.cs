@@ -9,11 +9,11 @@ using RVPark.Application;
 
 #nullable disable
 
-namespace RVPark.Application.Data.Migrations
+namespace RVPark.Application.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250718031314_Initial")]
-    partial class Initial
+    [Migration("20250720222831_leadintern")]
+    partial class leadintern
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -392,6 +392,10 @@ namespace RVPark.Application.Data.Migrations
 
                     b.Property<DateTime?>("EstimatedEndDate")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("LeadInternId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
                         .IsRequired()
