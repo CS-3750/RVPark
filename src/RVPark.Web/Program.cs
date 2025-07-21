@@ -22,6 +22,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddScoped<DBInitializer>();
 builder.Services.AddSingleton<IEmailSender, FakeEmailSender>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<UnitOfWork>();
 builder.Services.AddScoped<IProjectService, ProjectService>();
 
 // Add Identity services with ApplicationDbContext
@@ -58,4 +59,13 @@ app.UseSession();
 
 app.MapRazorPages();
 
+await SeedDatabaseAsync(app);
+
 app.Run();
+
+static async Task SeedDatabaseAsync(WebApplication app)
+{
+    using var scope = app.Services.CreateScope();
+    var dbInitializer = scope.ServiceProvider.GetRequiredService<DBInitializer>();
+    await dbInitializer.InitializeAsync();
+}

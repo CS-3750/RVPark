@@ -22,7 +22,7 @@ namespace RVPark.Application
             _roleManager = roleManager;
         }
 
-        public void Initialize()
+        public async Task InitializeAsync()
         {
             _db.Database.EnsureCreated();
 
@@ -50,17 +50,28 @@ namespace RVPark.Application
             _roleManager.CreateAsync(new IdentityRole(SD.InternRole)).GetAwaiter().GetResult();
             _roleManager.CreateAsync(new IdentityRole(SD.ClientRole)).GetAwaiter().GetResult();
 
-            // Seed admin user
-            _userManager.CreateAsync(new ApplicationUser
+            string adminEmail = "admin@sharklasers.com";
+            var adminUser = await _userManager.FindByEmailAsync(adminEmail);
+            if (adminUser == null)
             {
-                UserName="AdminUser",
-                Email="admin@sharklasers.com",
-                FirstName="Admin",
-                LastName="User",
-                PhoneNumber="1234567890",
-            }, "TestPassword!").GetAwaiter().GetResult();
-            ApplicationUser adminUser = _db.ApplicationUsers.FirstOrDefault(u => u.Email == "admin@sharklasers.com");
-            _userManager.AddToRoleAsync(adminUser, SD.AdminRole).GetAwaiter().GetResult();
+                adminUser = new ApplicationUser
+                {
+                    UserName = "AdminUser",
+                    Email = adminEmail,
+                    FirstName = "Admin",
+                    LastName = "User",
+                    PhoneNumber = "1234567890",
+                };
+                var createResult = await _userManager.CreateAsync(adminUser, "TestPassword123!");
+                if (!createResult.Succeeded)
+                {
+                    throw new Exception($"Failed to create admin user: {string.Join(", ", createResult.Errors.Select(e => e.Description))}");
+                }
+            }
+            if (!await _userManager.IsInRoleAsync(adminUser, SD.AdminRole))
+            {
+                await _userManager.AddToRoleAsync(adminUser, SD.AdminRole);
+            }
         }
     }
 }
