@@ -1,0 +1,29 @@
+﻿@page
+@model RVPark.Web.Pages.Admin.AdminToolsModel
+@{
+    ViewData["Title"] = "Admin Tools";
+}
+
+<nav class="navbar navbar-expand-lg navbar-light bg-light mb-3">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#">Admin Tools</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" asp-page="/Admin/EditUser">Edit User</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" asp-page="/Admin/AssignIntern">Assign Intern</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+    <h2>Welcome to Admin Tools</h2>
+    <p>Select an option from the navigation bar above.</p>
+</div>

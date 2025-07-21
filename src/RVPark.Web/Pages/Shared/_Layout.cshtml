@@ -9,7 +9,6 @@
     var projectList = user != null ? await ProjectService.GetUserProjectsAsync(user.Id) : [];
 }
 
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -23,83 +22,83 @@
 </head>
 <body>
 
-<body>
-
-<div class="wrapper">
-    <nav class="sidebar-persistent p-3 d-flex flex-column">
-        <h4 class="text-white mb-4">RVPark</h4>
-        @if (SignInManager.IsSignedIn(User))
-        {
-            <ul class="nav flex-column mb-auto">
-                <li class="nav-item">
-                    <a class="nav-link text-white" asp-area="Identity" asp-page="/Account/Manage/Index">
-                        @User.Identity?.Name
-                    </a>
-                </li>
-                <hr/>
-                <li class="nav-item">
-                    @* data-bs-toggle="offcanvas" data-bs-target="#projectsOffcanvas" aria-controls="projectsOffcanvas" *@
-                    <a class="nav-link text-white" asp-page="/Shared/Projects/Index">
-                        Projects
-                    </a>
-                </li>
-            </ul>
-        }
-        
-        <!--Bottom of nav-->
-        <div class="mt-auto">
-            <ul class="nav flex-column mb-auto">
-                @if (SignInManager.IsSignedIn(User))
-                {
-                    <li class="nav-item">
-                        <a class="nav-link active text-white" asp-area="Identity" asp-page="/Account/Logout">
-                            Logout
-                        </a>
-                    </li>
-                }
-                else
-                {
-                    <li class="nav-item">
-                        <a class="nav-link active text-white" asp-area="Identity" asp-page="/Account/Login">
-                            Login
-                        </a>
-                    </li>
-                }
-            </ul>
-        </div>
-    </nav>
-
-    <main class="main-content">
-        @RenderBody()
-    </main>
-</div>
-
-<div class="offcanvas offcanvas-start secondary-offcanvas bg-light" tabindex="-1" id="projectsOffcanvas" aria-labelledby="projectsOffcanvasLabel">
-    <div class="offcanvas-header">
-        <h5 class="offcanvas-title text-dark" id="projectsOffcanvasLabel">Your Projects</h5>
-        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-    </div>
-    <div class="offcanvas-body">
-        <ul class="list-group list-group-flush">
-            @ViewData["Thing"]
-            @foreach (var project in projectList)
+    <div class="wrapper">
+        <nav class="sidebar-persistent p-3 d-flex flex-column">
+            <h4 class="text-white mb-4">RVPark</h4>
+            @if (SignInManager.IsSignedIn(User))
             {
-                <li class="list-group-item"><a href="#" class="text-decoration-none text-dark">@project.Name</a></li>
+                <ul class="nav flex-column mb-auto">
+                    <li class="nav-item">
+                        <a class="nav-link text-white" asp-area="Identity" asp-page="/Account/Manage/Index">
+                            @User.Identity?.Name
+                        </a>
+                    </li>
+                    <hr />
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="#" data-bs-toggle="offcanvas" data-bs-target="#projectsOffcanvas" aria-controls="projectsOffcanvas">
+                            Projects
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="/admin/admintools">
+                            Admin Tools
+                        </a>
+                    </li>
+                </ul>
             }
-        </ul>
-        <hr>
-        <div class="d-grid">
-            <button class="btn btn-outline-primary">Add New Project</button>
+
+            <!--Bottom of nav-->
+            <div class="mt-auto">
+                <ul class="nav flex-column mb-auto">
+                    @if (SignInManager.IsSignedIn(User))
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link active text-white" asp-area="Identity" asp-page="/Account/Logout">
+                                Logout
+                            </a>
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link active text-white" asp-area="Identity" asp-page="/Account/Login">
+                                Login
+                            </a>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </nav>
+
+        <main class="main-content">
+            @RenderBody()
+        </main>
+    </div>
+
+    <div class="offcanvas offcanvas-start secondary-offcanvas bg-light" tabindex="-1" id="projectsOffcanvas" aria-labelledby="projectsOffcanvasLabel">
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title text-dark" id="projectsOffcanvasLabel">Your Projects</h5>
+            <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+            <ul class="list-group list-group-flush">
+                @ViewData["Thing"]
+                @foreach (var project in projectList)
+                {
+                    <li class="list-group-item"><a href="#" class="text-decoration-none text-dark">@project.Name</a></li>
+                }
+            </ul>
+            <hr>
+            <div class="d-grid">
+                <button class="btn btn-outline-primary">Add New Project</button>
+            </div>
         </div>
     </div>
-</div>
 
-</body>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
 
-<script src="~/lib/jquery/dist/jquery.min.js"></script>
-<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-<script src="~/js/site.js" asp-append-version="true"></script>
-
-@await RenderSectionAsync("Scripts", required: false)
+    @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

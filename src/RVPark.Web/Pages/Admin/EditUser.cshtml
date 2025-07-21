@@ -1,0 +1,45 @@
+﻿@page
+@model RVPark.Application.Pages.Admin.EditUserModel
+@{
+    ViewData["Title"] = "Edit Users";
+}
+
+<div class="container mt-5" style="max-width: 800px;">
+    <div class="d-flex justify-content-start mb-3">
+        <a href="/admin/admintools" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Back to Admin Tools
+        </a>
+    </div>
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h2 class="mb-0" style="font-size: 1.5rem;">Edit Users</h2>
+        </div>
+        <div class="card-body">
+            <table class="table table-striped align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th style="width: 110px;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var user in Model.Users)
+                    {
+                        <tr>
+                            <td>@user.Id</td>
+                            <td>@user.UserName</td>
+                            <td>@user.Email</td>
+                            <td>
+                                <form method="post" asp-page-handler="Delete" asp-route-id="@user.Id" class="d-inline">
+                                    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

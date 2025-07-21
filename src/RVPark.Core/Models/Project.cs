@@ -42,6 +42,7 @@ namespace RVPark.Core.Models
         public DateTime? EstimatedEndDate { get; set; }
         public int Status { get; set; }
         public string Name { get; set; }
+        public string LeadInternId { get; set; }
 
         [NotMapped]
         public ProjectStatus StatusEnum
