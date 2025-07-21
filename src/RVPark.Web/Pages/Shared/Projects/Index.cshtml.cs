@@ -35,8 +35,7 @@ namespace RVPark.Web.Pages.Shared.Projects
             StatusOptions.AddRange(items);
 
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var links = _UnitOfWork.ProjectUser.GetAll(pu => pu.ApplicationUserId == userId).ToList();
-            Projects = links.Select(link => link.Project).Distinct().OrderBy(p => p.Status).ThenBy(p => p.EstimatedEndDate ?? DateTime.MaxValue).ToList();
+            Projects = _UnitOfWork.Project.GetAll(p => p.ProjectUsers.Any(pu => pu.ApplicationUserId == userId)).ToList();
             return Page();
         }
     }

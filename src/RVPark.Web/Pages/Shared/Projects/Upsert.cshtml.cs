@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Security.Claims;
 
 namespace RVPark.Web.Pages.Shared.Projects
 {
@@ -24,9 +25,9 @@ namespace RVPark.Web.Pages.Shared.Projects
         public UpsertModel(UnitOfWork UnitOfWork)
         {
             _UnitOfWork = UnitOfWork;
-        } 
+        }
 
-        public IActionResult OnGet(int? id)
+        private void PopulateStatusOptions()
         {
             // build StatusOptions from enum
             StatusOptions = Enum.GetValues(typeof(ProjectStatus))
@@ -37,11 +38,19 @@ namespace RVPark.Web.Pages.Shared.Projects
                     Text = s.GetDisplayName()
                 })
                 .ToList();
+        }
 
+        public IActionResult OnGet(int? id)
+        {
+            PopulateStatusOptions();
             if (id == null || id == 0)
             {
                 // New
-                Project = new Project { StatusEnum = ProjectStatus.NewlySubmitted };
+                Project = new Project { 
+                    Title = "New Project",
+                    Description = "Project description goes here...",
+                    StatusEnum = ProjectStatus.NewlySubmitted 
+                };
             }
             else
             {
@@ -57,13 +66,34 @@ namespace RVPark.Web.Pages.Shared.Projects
         public IActionResult OnPost()
         {
             if (!ModelState.IsValid)
+            {
+                PopulateStatusOptions();
                 return Page();
+            }
 
             if (Project.Id == 0)
+            {
                 _UnitOfWork.Project.Add(Project);
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                _UnitOfWork.ProjectUser.Add(new ProjectUser {
+                    ProjectId = Project.Id,
+                    ApplicationUserId = userId,
+                    CanAddTasks = true,
+                    CanEditTasks = true,
+                    CanRemoveTasks = true,
+                    CanAddFiles = true,
+                    CanEditFiles = true,
+                    CanRemoveFiles = true,
+                    CanSendMessages = true,
+                    CanEditStatus = true,
+                    Role = 0,
+                });
+            }
             else
+            {
                 _UnitOfWork.Project.Update(Project);
-
+            }
+                
             //_UnitOfWork.SaveChanges();  // save changes
             return RedirectToPage("./Index");
         }

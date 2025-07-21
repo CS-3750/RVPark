@@ -24,7 +24,7 @@ namespace RVPark.Core.Models
         Reviewing = 3,
 
         [Display(Name = "Completed")]
-        Completed = 3
+        Completed = 4
     }
     
     public class Project
@@ -41,8 +41,8 @@ namespace RVPark.Core.Models
         public DateTime? EndDate { get; set; }
         public DateTime? EstimatedEndDate { get; set; }
         public int Status { get; set; }
-        public string Name { get; set; }
-        public string LeadInternId { get; set; }
+        public string? Name { get; set; }
+        public string? LeadInternId { get; set; }
 
         [NotMapped]
         public ProjectStatus StatusEnum
@@ -56,5 +56,7 @@ namespace RVPark.Core.Models
 
         [NotMapped]
         public bool IsActive => StatusEnum == ProjectStatus.Active;
+
+        public ICollection<ProjectUser> ProjectUsers { get; set; } = new List<ProjectUser>();
     }
 }
