@@ -1,9 +1,17 @@
 ﻿@page "{id?}"
 @model UpsertModel
 @using Microsoft.AspNetCore.Mvc.Rendering
+@using System.Web
 
 <div class="container my-4">
-    <div class="card col-md-8 offset-2 mt-3 px-5 py-3">
+    <div class="card col-md-10 offset-1 mt-3 px-5 py-3">
+        <div class="row mb-4">
+            <a asp-page="/Shared/Projects/Index"
+               class="link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover position-absolute top-0 start-0 m-4">
+                <i class="bi bi-arrow-left"></i>
+                Back
+            </a>
+        </div>
         <form method="post">
             <input type="hidden" asp-for="Project.Id" />
             <input type="hidden" asp-for="Project.Name" />
@@ -90,6 +98,22 @@
                     </div>
                 </div>
         </form>
+    </div>
+    <div class="col-md-8 offset-md-2 mt-4">
+        <div class="row justify-content-around">
+            <a asp-page="./ProjectTasks/Index" asp-route-projectId="@Model.Project.Id" class="card col-md-5 py-3 btn btn-secondary text-decoration-none">
+                <h3>
+                    <i class="bi bi-list-check me-2"></i>
+                    Tasks
+                </h3>
+            </a>
+            <a href="#" class="card col-md-5 py-3 btn btn-secondary text-decoration-none">
+                <h3>
+                    <i class="bi bi-file-earmark-arrow-down me-2"></i>
+                    Files
+                </h3>
+            </a>
+        </div>
     </div>
 </div>
 
