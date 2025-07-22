@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -23,7 +25,30 @@ namespace RVPark.Core.Models
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }
 
+        [ValidateNever]
         [ForeignKey(nameof(ProjectId))] 
         public Project Project { get; set; }
+
+        [NotMapped]
+        public bool IsScheduled => StartDate.HasValue && StartDate.Value > DateTime.Now;
+
+        [NotMapped]
+        public bool IsActive => (StartDate.HasValue && StartDate.Value <= DateTime.Now && (!EndDate.HasValue || EndDate.Value >= DateTime.Now));
+
+        [NotMapped]
+        public bool IsCompleted => EndDate.HasValue && EndDate.Value < DateTime.Now;
+
+        [NotMapped]
+        public string StatusDisplay
+            => IsCompleted ? "Completed"
+             : IsActive ? "Active"
+             : IsScheduled ? "Scheduled"
+             : "Unknown";
+
+        [NotMapped]
+        public string StatusBadgeClass
+            => IsCompleted ? "bg-success"
+             : IsActive ? "bg-primary"
+             : /*scheduled*/ "bg-secondary";
     }
 }
