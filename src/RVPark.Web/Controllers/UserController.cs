@@ -94,17 +94,15 @@ namespace BB.Web.Controllers
             return StatusCode(501, new { success = false, message = "Role management not implemented. Please implement role assignment logic." });
         }
 
-        // Helper methods for password hashing/verification (implement as needed)
+        // Helper methods for password hashing/verification
         private string HashPassword(string password)
         {
-            // Implement password hashing logic
-            return password; // Placeholder
+            return BCrypt.Net.BCrypt.HashPassword(password);
         }
 
         private bool VerifyPassword(string password, string passwordHash)
         {
-            // Implement password verification logic
-            return password == passwordHash; // Placeholder
+            return BCrypt.Net.BCrypt.Verify(password, passwordHash);
         }
     }
 
