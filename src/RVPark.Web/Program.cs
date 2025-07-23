@@ -54,6 +54,7 @@ app.UseStaticFiles();
 app.UseRouting();
 
 app.UseAuthentication(); // Make sure to add authentication middleware
+app.UseAuthorization(); // Add authorization middleware for [Authorize] attributes
 
 app.UseSession();
 
