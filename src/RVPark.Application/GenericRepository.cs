@@ -69,6 +69,12 @@ namespace RVPark.Application
             var entity = _db.Set<T>().Find(id.Value);
             return entity ?? throw new InvalidOperationException($"Entity of type {typeof(T).Name} with ID {id} was not found.");
         }
+        public T GetById(string? id)
+        {
+            if (id == null) throw new ArgumentNullException(nameof(id));
+            var entity = _db.Set<T>().Find(id);
+            return entity ?? throw new InvalidOperationException($"Entity of type {typeof(T).Name} with ID {id} was not found.");
+        }
 
         public void Update(T entity)
         {

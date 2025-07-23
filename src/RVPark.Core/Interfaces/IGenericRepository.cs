@@ -11,6 +11,9 @@ namespace RVPark.Core.Interfaces
     {
         // Retrieve a single entity by its primary key ID
         T GetById(int? id);
+        
+        // Retrieve a single entity by its primary key ID
+        T GetById(string? id);
 
         // Get
         T Get(Expression<Func<T, bool>> predicate, bool trackChanges = false, string? includes = null);

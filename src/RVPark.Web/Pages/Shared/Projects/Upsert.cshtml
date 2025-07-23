@@ -1,6 +1,7 @@
 ﻿@page "{id?}"
 @model UpsertModel
 @using Microsoft.AspNetCore.Mvc.Rendering
+@using Microsoft.Build.Evaluation
 
 <div class="container my-4">
     <div class="card col-md-8 offset-2 mt-3 px-5 py-3">
@@ -9,87 +10,95 @@
             <input type="hidden" asp-for="Project.Name" />
             <input type="hidden" asp-for="Project.LeadInternId" />
 
-                <div class="row">
-                    <div class="col-md-10 offset-1 my-3">
-                        <div class="row my-3 align-items-center">
-                            <!-- Title -->
-                            <div class="col-auto inline-edit" data-field="Title">
+            <div class="row">
+                <div class="col-md-10 offset-1 my-3">
+                    <div class="row my-3 align-items-center">
+                        <!-- Title -->
+                        <div class="col-auto inline-edit" data-field="Title">
 
-                                <div class="view d-flex align-items-center h1">
-                                    <i class="bi bi-folder-plus me-3"></i>
-                                    <span>@Model.Project.Title</span>
-                                </div>
-                                <div class="edit d-none input-group input-group-lg">
-                                    <span class="input-group-text"><i class="bi bi-folder-plus"></i></span>
-                                    <input asp-for="Project.Title" class="form-control" />
-                                </div>
-                                <span asp-validation-for="Project.Title" class="text-danger"></span>
+                            <div class="view d-flex align-items-center h1">
+                                <i class="bi bi-folder-plus me-3"></i>
+                                <span>@Model.Project.Title</span>
+                            </div>
+                            <div class="edit d-none input-group input-group-lg">
+                                <span class="input-group-text"><i class="bi bi-folder-plus"></i></span>
+                                <input asp-for="Project.Title" class="form-control" />
+                            </div>
+                            <span asp-validation-for="Project.Title" class="text-danger"></span>
 
-                                @* <i class="bi bi-folder-plus h1 pe-3"></i>
+                            @* <i class="bi bi-folder-plus h1 pe-3"></i>
                                 <span class="view h1">@Model.Project.Title</span>
                                 <input asp-for="Project.Title" class="edit form-control h1 d-none" />
                                 <span asp-validation-for="Project.Title" class="text-danger"></span> *@
-                            </div>
-
-                            <!-- Status -->
-                            <div class="col-auto ms-auto inline-edit" data-field="StatusEnum">
-                                <div class="view">
-                                    <!-- Enlarged badge using fs-1 and extra padding -->
-                                    <span class="badge fs-3 py-2 px-3 @(Model.Project.IsActive ? "bg-success" : "bg-secondary")">
-                                        @Model.Project.StatusDisplay
-                                    </span>
-                                </div>
-                                <select asp-for="Project.StatusEnum" asp-items="Model.StatusOptions" class="edit form-select d-none"></select>
-                            </div>
                         </div>
 
-                        <!-- Description -->
-                        <div class="row p-3 mb-3 inline-edit" data-field="Description">
-                            <span class="view form-control d-block">@Model.Project.Description</span>
-                            <textarea asp-for="Project.Description" class="edit form-control d-none" rows="4"></textarea>
-                            <span asp-validation-for="Project.Description" class="text-danger"></span>
-                        </div>
-
-                        <div class="row mb-3">
-                            <div class="col-md-12 mb-3 d-flex text-center justify-content-around">
-                                <!-- Start Date -->
-                                <div class="row mx-1 inline-edit" data-field="StartDate">
-                                    <label class="form-label">Start Date</label>
-                                    <div class="view form-control d-block">
-                                        <span>@(Model.Project.StartDate?.ToString("MMM d, yyyy") ?? "TBD")</span>
-                                        <i class="bi bi-calendar-event ms-1"></i>
-                                    </div>
-                                    <input asp-for="Project.StartDate" type="date" class="edit form-control d-none" />
-                                </div>
-
-                                <!-- Estimated End Date -->
-                                <div class="row mx-1 inline-edit" data-field="EstimatedEndDate">
-                                    <label class="form-label">Estimated End Date</label>
-                                    <div class="view form-control d-block">
-                                        <span>@(Model.Project.EstimatedEndDate?.ToString("MMM d, yyyy") ?? "TBD")</span>
-                                        <i class="bi bi-hourglass-split ms-1"></i>
-                                    </div>
-                                    <input asp-for="Project.EstimatedEndDate" type="date" class="edit form-control d-none" />
-                                </div>
-
-                                <!-- Completion Date -->
-                                <div class="row mx-1 inline-edit" data-field="EndDate">
-                                    <label class="form-label">Completion Date</label>
-                                    <div class="view form-control d-block">
-                                        <span>@(Model.Project.EndDate?.ToString("MMM d, yyyy") ?? "TBD")</span>
-                                        <i class="bi bi-check2-circle ms-1"></i>
-                                    </div>
-                                    <input asp-for="Project.EndDate" type="date" class="edit form-control d-none" />
-                                </div>
+                        <!-- Status -->
+                        <div class="col-auto ms-auto inline-edit" data-field="StatusEnum">
+                            <div class="view">
+                                <!-- Enlarged badge using fs-1 and extra padding -->
+                                <span class="badge fs-3 py-2 px-3 @(Model.Project.IsActive ? "bg-success" : "bg-secondary")">
+                                    @Model.Project.StatusDisplay
+                                </span>
                             </div>
-                        </div>
-
-                        <div class="d-flex justify-content-end">
-                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                            <select asp-for="Project.StatusEnum" asp-items="Model.StatusOptions" class="edit form-select d-none"></select>
                         </div>
                     </div>
+
+                    <!-- Description -->
+                    <div class="row p-3 mb-3 inline-edit" data-field="Description">
+                        <span class="view form-control d-block">@Model.Project.Description</span>
+                        <textarea asp-for="Project.Description" class="edit form-control d-none" rows="4"></textarea>
+                        <span asp-validation-for="Project.Description" class="text-danger"></span>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-12 mb-3 d-flex text-center justify-content-around">
+                            <!-- Start Date -->
+                            <div class="row mx-1 inline-edit" data-field="StartDate">
+                                <label class="form-label">Start Date</label>
+                                <div class="view form-control d-block">
+                                    <span>@(Model.Project.StartDate?.ToString("MMM d, yyyy") ?? "TBD")</span>
+                                    <i class="bi bi-calendar-event ms-1"></i>
+                                </div>
+                                <input asp-for="Project.StartDate" type="date" class="edit form-control d-none" />
+                            </div>
+
+                            <!-- Estimated End Date -->
+                            <div class="row mx-1 inline-edit" data-field="EstimatedEndDate">
+                                <label class="form-label">Estimated End Date</label>
+                                <div class="view form-control d-block">
+                                    <span>@(Model.Project.EstimatedEndDate?.ToString("MMM d, yyyy") ?? "TBD")</span>
+                                    <i class="bi bi-hourglass-split ms-1"></i>
+                                </div>
+                                <input asp-for="Project.EstimatedEndDate" type="date" class="edit form-control d-none" />
+                            </div>
+
+                            <!-- Completion Date -->
+                            <div class="row mx-1 inline-edit" data-field="EndDate">
+                                <label class="form-label">Completion Date</label>
+                                <div class="view form-control d-block">
+                                    <span>@(Model.Project.EndDate?.ToString("MMM d, yyyy") ?? "TBD")</span>
+                                    <i class="bi bi-check2-circle ms-1"></i>
+                                </div>
+                                <input asp-for="Project.EndDate" type="date" class="edit form-control d-none" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end">
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </div>
                 </div>
+            </div>
         </form>
+        <hr>
+        <div class="row">
+            <div class="col">
+                <a asp-page="AssetRequest" asp-route-projectId="@Model.Project.Id" class="btn btn-primary">Supply Request</a>
+                <a href="" class="btn btn-primary">Tasks</a>
+                <a href="" class="btn btn-primary">Files</a>
+            </div>
+        </div>
     </div>
 </div>
 
