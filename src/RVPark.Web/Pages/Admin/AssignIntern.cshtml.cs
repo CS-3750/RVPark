@@ -77,7 +77,6 @@ namespace RVPark.Application.Pages.Admin
             // Assign or remove lead intern
             project.LeadInternId = string.IsNullOrEmpty(SelectedLeadInternId) ? null : SelectedLeadInternId;
             _unitOfWork.Project.Update(project);
-            // await _unitOfWork.SaveAsync(); // Uncomment if you use SaveAsync
 
             return RedirectToPage(new { projectId = SelectedProjectId });
         }

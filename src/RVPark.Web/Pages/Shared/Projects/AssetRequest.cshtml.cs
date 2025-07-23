@@ -14,9 +14,12 @@ public class AssetRequestModel(IUnitOfWork unitOfWork) : PageModel
     public AssetRequest Input { get; set; }
 
     public List<AssetRequest> PreviousRequests { get; set; }
+    
+    public int ProjectId { get; set; }
 
     public void OnGet(int projectId)
     {        
+        ProjectId = projectId;
         PreviousRequests = unitOfWork.AssetRequest.GetAll(
             ar => ar.ProjectId == projectId, null, "").ToList();
 
@@ -52,10 +55,11 @@ public class AssetRequestModel(IUnitOfWork unitOfWork) : PageModel
             Quantity = Input.Quantity,
             Url = Input.Url,
             EstimatedCost = Input.EstimatedCost,
-            Status = Input.Status
+            StatusEnum = AssetRequestStatus.Submitted
         };
 
         unitOfWork.AssetRequest.Add(newRequest);
+        TempData["SuccessMessage"] = "Asset request created successfully.";
 
         return RedirectToPage(new { projectId = Input.ProjectId });
     }
@@ -67,6 +71,7 @@ public class AssetRequestModel(IUnitOfWork unitOfWork) : PageModel
         {
             requestToUpdate.Status = status;
             unitOfWork.AssetRequest.Update(requestToUpdate);
+            TempData["SuccessMessage"] = "Asset request status updated successfully.";
         }
 
         return RedirectToPage(new { projectId = requestToUpdate.ProjectId });
@@ -79,6 +84,7 @@ public class AssetRequestModel(IUnitOfWork unitOfWork) : PageModel
         {
             var projectId = requestToDelete.ProjectId;
             unitOfWork.AssetRequest.Delete(requestToDelete);
+            TempData["SuccessMessage"] = "Asset request deleted successfully.";
             return RedirectToPage(new { projectId = projectId });
         }
         return Page();

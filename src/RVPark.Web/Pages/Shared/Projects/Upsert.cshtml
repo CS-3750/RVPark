@@ -99,30 +99,30 @@
                 </div>
             </div>
         </form>
-        <hr>
-        <div class="row">
-            <div class="col">
-                <a asp-page="AssetRequest" asp-route-projectId="@Model.Project.Id" class="btn btn-primary">Supply Request</a>
-                <a href="" class="btn btn-primary">Tasks</a>
-                <a href="" class="btn btn-primary">Files</a>
+        @if (Model.Project.Id != 0)
+        {
+            <hr>
+            <div class="row justify-content-around">
+                <a asp-page="./ProjectTasks/Index" asp-route-projectId="@Model.Project.Id" class="card col-md-3 py-3 btn btn-secondary text-decoration-none">
+                    <h3>
+                        <i class="bi bi-list-check me-2"></i>
+                        Tasks
+                    </h3>
+                </a>
+                <a asp-page="./AssetRequest" asp-route-projectId="@Model.Project.Id" class="card col-md-3 py-3 btn btn-secondary text-decoration-none">
+                    <h3>
+                        <i class="bi bi-box-seam me-2"></i>
+                        Asset Request
+                    </h3>
+                </a>
+                <a href="#" class="card col-md-3 py-3 btn btn-secondary text-decoration-none disabled">
+                    <h3>
+                        <i class="bi bi-file-earmark-arrow-down me-2"></i>
+                        Files
+                    </h3>
+                </a>
             </div>
-        </div>
-    </div>
-    <div class="col-md-8 offset-md-2 mt-4">
-        <div class="row justify-content-around">
-            <a asp-page="./ProjectTasks/Index" asp-route-projectId="@Model.Project.Id" class="card col-md-5 py-3 btn btn-secondary text-decoration-none">
-                <h3>
-                    <i class="bi bi-list-check me-2"></i>
-                    Tasks
-                </h3>
-            </a>
-            <a href="#" class="card col-md-5 py-3 btn btn-secondary text-decoration-none">
-                <h3>
-                    <i class="bi bi-file-earmark-arrow-down me-2"></i>
-                    Files
-                </h3>
-            </a>
-        </div>
+        }
     </div>
 </div>
 
