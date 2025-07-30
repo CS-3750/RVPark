@@ -113,8 +113,41 @@ namespace RVPark.Web.Pages.Shared.Projects
             task.StartDate = DateTime.Parse(update.Start);
             task.EndDate = DateTime.Parse(update.End);
             _UnitOfWork.ProjectTask.Update(task);
-            return new JsonResult(new { success = true, task_complete = task.IsCompleted });
+            var dto = new ProjectTaskDto
+            {
+                id = task.Id.ToString(),
+                projectId = task.ProjectId,
+                title = task.Title,
+                description = task.Description,
+                startDate = task.StartDate?.ToString("yyy-MM-dd") ?? "",
+                endDate = task.EndDate?.ToString("yyy-MM-dd") ?? "",
+                isScheduled = task.IsScheduled,
+                isActive = task.IsActive,
+                isCompleted = task.IsCompleted,
+                statusDisplay = task.StatusDisplay,
+                statusBadgeClass = task.StatusBadgeClass
+            };
+            return new JsonResult(new {
+                success = true,
+                task = dto,
+                task_complete = task.IsCompleted 
+            });
         }
+    }
+
+    public class ProjectTaskDto
+    {
+        public string id { get; set; }
+        public int projectId { get; set; }
+        public string title { get; set; }
+        public string description { get; set; }
+        public string startDate { get; set; }
+        public string endDate { get; set; }
+        public bool isScheduled { get; set; }
+        public bool isActive { get; set; }
+        public bool isCompleted { get; set; }
+        public string statusDisplay { get; set; }
+        public string statusBadgeClass { get; set; }
     }
 
     public class GanttTaskUpdateModel

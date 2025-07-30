@@ -16,6 +16,21 @@
         progress = task.IsCompleted ? 100 : 0,
         dependencies = "",
     });
+    var tasks = Model.Tasks.Select(task => new
+    {
+        id = task.Id.ToString(),
+        projectId = Model.Project.Id,
+        description = task.Description,
+        title = task.Title,
+        startDate = task.StartDate,
+        endDate = task.EndDate,
+        isScheduled = task.IsScheduled,
+        isActive = task.IsActive,
+        isCompleted = task.IsCompleted,
+        statusDisplay = task.StatusDisplay,
+        statusBadgeClass = task.StatusBadgeClass,
+    });
+    var tasksJson = JsonConvert.SerializeObject(tasks);
     var ganttTasksJson = JsonConvert.SerializeObject(ganttTasks);
 }
 
@@ -119,27 +134,69 @@
             <div class="card col-md-12 mt-3 px-5 py-3">
                 <div class="row my-3">
                     <div class="col-md-12">
-                        <div class="row mb-1">
-                            <h2>
-                                <i class="bi bi-list-check me-2"></i>
-                                Tasks
-                            </h2>
+                        <!-- Page Title -->
+                        <div class="row my-3">
+                            <div class="col-md-9">
+                                <h2 class="mb-3">
+                                    <i class="bi bi-list-check me-2"></i>
+                                    Tasks
+                                </h2>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="input-group">
+                                    <select id="taskViewSelect"class="form-select">
+                                        <option value="gantt" selected>Gantt</option>
+                                        <option value="card">Card</option>
+                                    </select>
+                                    <span class="input-group-text">View</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Filters + Search -->
+                        <div class="row mb-4 gy-2 gx-3 align-items-center">
+                            <div class="col-auto">
+                                <div class="input-group">
+                                    <span class="input-group-text">Status</span>
+                                    <select id="statusFilter" class="form-select">
+                                        <option value="All" selected>All</option>
+                                        <option value="Scheduled">Scheduled</option>
+                                        <option value="Active">Active</option>
+                                        <option value="Completed">Completed</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-auto ms-auto d-flex align-items-center flex-nowrap">
+                                <div class="input-group">
+                                    <input type="text" id="searchInput" class="form-control" placeholder="Search project tasks..." />
+                                    <button class="btn btn-outline-secondary" id="searchButton">Search</button>
+                                </div>
+                                <a asp-page="/Shared/Projects/ProjectTasks/Upsert"
+                                   asp-route-projectId="@Model.Project.Id"
+                                   asp-route-projectTaskId=0
+                                   class="btn btn-primary ms-2 text-nowrap">
+                                    <i class="bi bi-list-check me-1"></i>
+                                    New Task
+                                </a>
+                            </div>
                         </div>
                         <div class="row">
                             <div id="gantt"></div>
+                            <div id="ganttNoEndDateAlert" class="row d-flex justify-content-end d-none"></div>
+                            <div id="tasksContainer" class="row d-none"></div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="card col-md-10 offset-1 mt-3 px-5 py-3">
-                <div class="row justify-content-around">
-                    <a asp-page="./AssetRequest" asp-route-projectId="@Model.Project.Id" class="card col-md-3 py-3 btn btn-secondary text-decoration-none">
+            <div class="col-md-12 mt-5 mb-2">
+                <div class="row justify-content-evenly">
+                    <a asp-page="./AssetRequest" asp-route-projectId="@Model.Project.Id" class="card col-md-4 py-3 btn btn-secondary text-decoration-none">
                         <h3>
                             <i class="bi bi-box-seam me-2"></i>
-                            Asset Request
+                            Asset Requests
                         </h3>
                     </a>
-                    <a href="#" class="card col-md-3 py-3 btn btn-secondary text-decoration-none disabled">
+                    <a href="#" class="card col-md-4 py-3 btn btn-secondary text-decoration-none disabled">
                         <h3>
                             <i class="bi bi-file-earmark-arrow-down me-2"></i>
                             Files
@@ -154,15 +211,202 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script>
-        const tasks = @Html.Raw(ganttTasksJson);
+        let tasksJson = @Html.Raw(tasksJson);
+        let gantt;
         let ganttRefreshTimeout;
+        let sendTaskUpdateTimeout;
+        let dragResetTimeout;
         let wasDragged = false;
+
+        const renderCards = (tasks) => {
+            const $container = $('#tasksContainer').empty();
+            tasks.forEach(t => {
+                $container.append(cardHtmlFor(t));
+            });
+        }
+
+        const updateCard = (t) => {
+            const newHtml = cardHtmlFor(t);
+            const $old = $('#task-' + t.id);
+            if ($old.length) {
+                $old.replaceWith(newHtml);
+            } else {
+                $('#tasksContainer').append(newHtml);
+            }
+
+        }
+
+        const cardHtmlFor = (t) => {
+            let formattedStartDate;
+            let formattedEndDate;
+            if (!t.startDate) {
+                formattedStartDate = "TBD";
+            } else {
+                const originalStartDate = new Date(t.startDate);
+                formattedStartDate = originalStartDate.toLocaleDateString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                    year: 'numeric'
+                });
+            }
+            if (!t.endDate) {
+                formattedEndDate = "TBD";
+            } else {
+                const originalEndDate = new Date(t.endDate);
+                formattedEndDate = originalEndDate.toLocaleDateString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                    year: 'numeric'
+                });
+            }
+            return `
+                <div id="task-${t.id}" class="col-lg-4 col-md-6 mb-4 project-card"
+                     data-name="${t.title.toLowerCase()}"
+                     data-active="${t.isActive.toString().toLowerCase()}"
+                     data-status="${t.statusDisplay}">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">
+                                <a href="/Shared/Projects/${t.projectId}/ProjectTasks/${t.id}"
+                                   class="link-primary text-decoration-none link-underline-opacity-0-hover">
+                                    ${t.title}
+                                </a>
+                            </h5>
+                            <span class="badge ${t.statusBadgeClass}">${t.statusDisplay}</span>
+                        </div>
+                        <div class="card-body d-flex flex-column">
+                            <p class="card-text flex-grow-1 text-truncate">${t.description}</p>
+                            <ul class="list-unstyled mb-3 small text-muted">
+                                <li><i class="bi bi-calendar-event me-1"></i>${formattedStartDate}</li>
+                                <li><i class="bi bi-hourglass-split me-1"></i>${formattedEndDate}</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        const mapTasksToGantt = (tasks) => {
+            const originalTasksCount = tasks.length;
+            const ganttReady = tasks.filter(t => 
+                t.startDate !== '' &&
+                t.endDate !== '' &&
+                !isNaN(Date.parse(t.startDate)) &&
+                !isNaN(Date.parse(t.endDate))
+            );
+            const ganttReadyCount = ganttReady.length;
+            const $alert = $('#ganttNoEndDateAlert');
+            const missingCount = originalTasksCount - ganttReadyCount;
+            const selectedView = $('#taskViewSelect').val();
+            const showAlert = missingCount > 0 && selectedView === 'gantt';
+            if (showAlert) {
+                $alert.html(`
+                    <div class="">
+                        <div class="alert alert-light col-md-12 mt-3 d-flex justify-content-center" role="alert">
+                            <div class="">
+                                <div>
+                                    <i class="bi bi-exclamation-triangle me-2"></i>
+                                    ${missingCount} task${missingCount > 1 ? 's' : ''} ${missingCount > 1
+                                    ? 'do'
+                                    : 'does'} not have both start and end dates set and will not appear in the Gantt view.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `);
+            } else {
+                $alert.empty();
+            }
+            $alert.toggleClass('d-none', !showAlert);
+            return ganttReady.map(t => ({
+                id: t.id,
+                name: t.title,
+                start: t.startDate ? new Date(t.startDate).toISOString().slice(0,10) : "",
+                end: t.endDate ? new Date(t.endDate).toISOString().slice(0,10) : "",
+                progress: t.isCompleted ? 100 : 0,
+                dependencies: "",
+            }));
+        }
+
+        const sendTaskUpdate = (task, start, end) => {
+            let currentURL = window.location.pathname;
+            let updateURL = `${currentURL}?handler=UpdateTask`
+            fetch(updateURL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                },
+                body: JSON.stringify({
+                    id: task.id,
+                    start: start.toISOString(),
+                    end: end.toISOString()
+                })
+            })
+            .then(res => {
+                if(!res.ok) throw new Error("Save failed");
+                return res.json();
+            })
+            .then(data => {
+                if (!data.success) throw new Error("Save failed");
+                const updated = data.task;
+                updateCard(updated);
+                const idx = tasksJson.findIndex(t => t.id === task.id);
+                if (idx > -1) {
+                    index = idx.toString();
+                    tasksJson[index] = updated;
+                }
+                const ganttTask = gantt.tasks.find(t => t.id === task.id);
+                if (ganttTask) {
+                    ganttTask.start = new Date(start);
+                    ganttTask.end = new Date(end);
+                    const progress = data.task_complete ? 100 : 0;
+                    ganttTask.progress = progress
+                    if (ganttRefreshTimeout) {
+                        clearTimeout(ganttRefreshTimeout);
+                    }
+                    ganttRefreshTimeout = setTimeout(() => {
+                        let start = ganttTask.start ? ganttTask.start.toISOString().slice(0,10) : "";
+                        let end = ganttTask.end ? ganttTask.end.toISOString().slice(0,10) : "";
+                        gantt.update_task(ganttTask.id, {
+                            start: start,
+                            end: end,
+                            progress: progress,
+                        });
+                    }, 200);
+                    dragResetTimeout = setTimeout(() => {
+                        wasDragged = false;
+                    }, 300);
+
+                }
+            })
+            .catch(err => {
+                console.error(err);
+            });
+        }
+        
+
         $(() => {
-            const gantt = new Gantt("#gantt", tasks, {
-                container_height: 500,
+            renderCards(tasksJson);
+            $('#taskViewSelect').on('change', () => {
+                const selectedView = $('#taskViewSelect').val();
+                const $ganttNoEndDateAlert = $('#ganttNoEndDateAlert');
+                if (selectedView === 'gantt') {
+                    $('#gantt').removeClass('d-none');
+                    $('#tasksContainer').addClass('d-none');
+                    $ganttNoEndDateAlert.toggleClass('d-none', $ganttNoEndDateAlert.text().trim() === '')
+                } else {
+                    $('#gantt').addClass('d-none');
+                    $ganttNoEndDateAlert.addClass('d-none');
+                    $('#tasksContainer').removeClass('d-none');
+                }
+            });
+            let ganttTasks = mapTasksToGantt(tasksJson);
+            gantt = new Gantt("#gantt", ganttTasks, {
+                container_height: 'auto',
+                column_width: 75,
                 on_click: task => {
                     if (wasDragged) {
-                        wasDragged = false;
                         return;
                     }
                     let currentURL = window.location.pathname;
@@ -170,42 +414,12 @@
                 },
                 on_date_change: (task, start, end) => {
                     wasDragged = true;
-                    let currentURL = window.location.pathname;
-                    let updateURL = `${currentURL}?handler=UpdateTask`
-                    fetch(updateURL, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
-                        },
-                        body: JSON.stringify({
-                            id: task.id,
-                            start: start.toISOString(),
-                            end: end.toISOString()
-                        })
-                    })
-                    .then(res => {
-                        if(!res.ok) throw new Error("Save failed");
-                        return res.json();
-                    })
-                    .then(data => {
-                        if (!data.success) throw new Error("Save failed");
-                        const ganttTask = gantt.tasks.find(t => t.id === task.id);
-                        if (ganttTask) {
-                            ganttTask.start = new Date(start);
-                            ganttTask.end = new Date(end);
-                            ganttTask.progress = data.task_complete ? 100 : 0;
-                            if (ganttRefreshTimeout) {
-                                clearTimeout(ganttRefreshTimeout);
-                            }
-                            ganttRefreshTimeout = setTimeout(() => {
-                                gantt.refresh(gantt.tasks);
-                            }, 500);
-                        }
-                    })
-                    .catch(err => {
-                        console.error(err);
-                    });
+                    if (sendTaskUpdateTimeout) {
+                        clearTimeout(sendTaskUpdateTimeout);
+                    }
+                    sendTaskUpdateTimeout = setTimeout(() => {
+                        sendTaskUpdate(task, start, end);
+                    }, 500);
                 },
                 popup_on: 'hover',
                 scroll_to: "start",
@@ -281,5 +495,52 @@
             }
           });
         });
+    </script>
+    <script>
+        (function() {
+            const cards         = Array.from(document.querySelectorAll('.project-card'));
+            const statusFilter  = document.getElementById('statusFilter');
+            const txtSearch     = document.getElementById('searchInput');
+            const btnSearch     = document.getElementById('searchButton');
+            const container     = document.getElementById('tasksContainer');
+            const messageId     = 'noResultsMessage';
+
+            function applyFilters() {
+                const selectedStatus = statusFilter.value;         // e.g. "Active" or "All"
+                const term           = txtSearch.value.trim().toLowerCase();
+                const filteredTasks = tasksJson.filter(t => {
+                    const okStatus = selectedStatus === 'All' || t.statusDisplay === selectedStatus;
+                    const okSearch = !term || t.title.toLowerCase().includes(term);
+                    return okStatus && okSearch
+                });
+                renderCards(filteredTasks);
+                const existing = document.getElementById(messageId);
+                if (filteredTasks.length === 0) {
+                    if (!existing) {
+                        const msg = document.createElement('div');
+                        msg.id        = messageId;
+                        msg.className = 'alert alert-info text-center mt-4';
+                        msg.textContent = 'No tasks match your filters.';
+                        container.parentNode.insertBefore(msg, container);
+                    }
+                } else if (existing) {
+                    existing.remove();
+                }
+
+                // 3) Apply Gantt Chart Filters
+                if (!gantt) return;
+                const ganttData = mapTasksToGantt(filteredTasks);
+
+                gantt.refresh(ganttData);
+            }
+
+            // wire up events
+            statusFilter.addEventListener('change', applyFilters);
+            btnSearch.addEventListener   ('click',  applyFilters);
+            txtSearch.addEventListener   ('keyup',  e => e.key === 'Enter' && applyFilters());
+
+            // initial
+            applyFilters();
+        })();
     </script>
 }
