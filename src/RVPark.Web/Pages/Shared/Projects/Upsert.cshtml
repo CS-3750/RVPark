@@ -1,8 +1,23 @@
-@page "{id?}"
+@page "/Shared/Projects/{id?}"
 @model UpsertModel
+@using RVPark.Core.Models
 @using Microsoft.AspNetCore.Mvc.Rendering
 @using Microsoft.Build.Evaluation
+@using Newtonsoft.Json
 @using System.Web
+
+@{
+    var ganttTasks = Model.Tasks.Select(task => new
+    {
+        id = task.Id.ToString(),
+        name = task.Title,
+        start = task.StartDate?.ToString("yyyy-MM-dd") ?? "",
+        end = task.EndDate?.ToString("yyyy-MM-dd") ?? "",
+        progress = task.IsCompleted ? 100 : 0,
+        dependencies = "",
+    });
+    var ganttTasksJson = JsonConvert.SerializeObject(ganttTasks);
+}
 
 <div class="container my-4">
     <div class="card col-md-10 offset-1 mt-3 px-5 py-3">
@@ -99,16 +114,26 @@
                 </div>
             </div>
         </form>
-        @if (Model.Project.Id != 0)
-        {
-            <hr>
+    </div>
+    @if (Model.Project.Id != 0)
+    {
+        <div class="card col-md-10 offset-1 mt-3 px-5 py-3">
+            <div class="row my-3">
+                <div class="col-md-10 offset-md-1">
+                    <div class="row mb-1">
+                        <h2>
+                            <i class="bi bi-list-check me-2"></i>
+                            Tasks
+                        </h2>
+                    </div>
+                    <div class="row">
+                        <div id="gantt"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card col-md-10 offset-1 mt-3 px-5 py-3">
             <div class="row justify-content-around">
-                <a asp-page="./ProjectTasks/Index" asp-route-projectId="@Model.Project.Id" class="card col-md-3 py-3 btn btn-secondary text-decoration-none">
-                    <h3>
-                        <i class="bi bi-list-check me-2"></i>
-                        Tasks
-                    </h3>
-                </a>
                 <a asp-page="./AssetRequest" asp-route-projectId="@Model.Project.Id" class="card col-md-3 py-3 btn btn-secondary text-decoration-none">
                     <h3>
                         <i class="bi bi-box-seam me-2"></i>
@@ -122,12 +147,72 @@
                     </h3>
                 </a>
             </div>
-        }
-    </div>
+        </div>
+    }
 </div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        const tasks = @Html.Raw(ganttTasksJson);
+        let ganttRefreshTimeout;
+        let wasDragged = false;
+        $(() => {
+            const gantt = new Gantt("#gantt", tasks, {
+                container_height: 500,
+                on_click: task => {
+                    if (wasDragged) {
+                        wasDragged = false;
+                        return;
+                    }
+                    let currentURL = window.location.pathname;
+                    window.location.href = `${currentURL}/ProjectTasks/${task.id}`
+                },
+                on_date_change: (task, start, end) => {
+                    wasDragged = true;
+                    let currentURL = window.location.pathname;
+                    let updateURL = `${currentURL}?handler=UpdateTask`
+                    fetch(updateURL, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                        },
+                        body: JSON.stringify({
+                            id: task.id,
+                            start: start.toISOString(),
+                            end: end.toISOString()
+                        })
+                    })
+                    .then(res => {
+                        if(!res.ok) throw new Error("Save failed");
+                        return res.json();
+                    })
+                    .then(data => {
+                        if (!data.success) throw new Error("Save failed");
+                        const ganttTask = gantt.tasks.find(t => t.id === task.id);
+                        if (ganttTask) {
+                            ganttTask.start = new Date(start);
+                            ganttTask.end = new Date(end);
+                            ganttTask.progress = data.task_complete ? 100 : 0;
+                            if (ganttRefreshTimeout) {
+                                clearTimeout(ganttRefreshTimeout);
+                            }
+                            ganttRefreshTimeout = setTimeout(() => {
+                                gantt.refresh(gantt.tasks);
+                            }, 500);
+                        }
+                    })
+                    .catch(err => {
+                        console.error(err);
+                    });
+                },
+                popup_on: 'hover',
+                scroll_to: "start",
+                readonly_progress: true,
+            });
+        });
+    </script>
     <script>
         document.querySelectorAll('.inline-edit').forEach(wrapper => {
           let editWithVal;

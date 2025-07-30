@@ -68,7 +68,7 @@ namespace RVPark.Pages.Projects.Tasks
                 // Insert
                 _UnitOfWork.ProjectTask.Add(Task);
             }
-            return RedirectToPage("/Shared/Projects/ProjectTasks/Upsert", new { projectId = ProjectId });
+            return RedirectToPage("/Shared/Projects/Upsert", new { id = ProjectId });
         }
     }
 }
