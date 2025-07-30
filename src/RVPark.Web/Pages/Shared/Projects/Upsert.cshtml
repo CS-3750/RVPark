@@ -114,41 +114,41 @@
                 </div>
             </div>
         </form>
-    </div>
-    @if (Model.Project.Id != 0)
-    {
-        <div class="card col-md-10 offset-1 mt-3 px-5 py-3">
-            <div class="row my-3">
-                <div class="col-md-10 offset-md-1">
-                    <div class="row mb-1">
-                        <h2>
-                            <i class="bi bi-list-check me-2"></i>
-                            Tasks
-                        </h2>
-                    </div>
-                    <div class="row">
-                        <div id="gantt"></div>
+        @if (Model.Project.Id != 0)
+        {
+            <div class="card col-md-12 mt-3 px-5 py-3">
+                <div class="row my-3">
+                    <div class="col-md-12">
+                        <div class="row mb-1">
+                            <h2>
+                                <i class="bi bi-list-check me-2"></i>
+                                Tasks
+                            </h2>
+                        </div>
+                        <div class="row">
+                            <div id="gantt"></div>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="card col-md-10 offset-1 mt-3 px-5 py-3">
-            <div class="row justify-content-around">
-                <a asp-page="./AssetRequest" asp-route-projectId="@Model.Project.Id" class="card col-md-3 py-3 btn btn-secondary text-decoration-none">
-                    <h3>
-                        <i class="bi bi-box-seam me-2"></i>
-                        Asset Request
-                    </h3>
-                </a>
-                <a href="#" class="card col-md-3 py-3 btn btn-secondary text-decoration-none disabled">
-                    <h3>
-                        <i class="bi bi-file-earmark-arrow-down me-2"></i>
-                        Files
-                    </h3>
-                </a>
+            <div class="card col-md-10 offset-1 mt-3 px-5 py-3">
+                <div class="row justify-content-around">
+                    <a asp-page="./AssetRequest" asp-route-projectId="@Model.Project.Id" class="card col-md-3 py-3 btn btn-secondary text-decoration-none">
+                        <h3>
+                            <i class="bi bi-box-seam me-2"></i>
+                            Asset Request
+                        </h3>
+                    </a>
+                    <a href="#" class="card col-md-3 py-3 btn btn-secondary text-decoration-none disabled">
+                        <h3>
+                            <i class="bi bi-file-earmark-arrow-down me-2"></i>
+                            Files
+                        </h3>
+                    </a>
+                </div>
             </div>
-        </div>
-    }
+        }
+    </div>
 </div>
 
 @section Scripts {
