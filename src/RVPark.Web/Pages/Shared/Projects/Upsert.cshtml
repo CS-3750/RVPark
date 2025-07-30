@@ -22,7 +22,7 @@
                 <div class="col-md-10 offset-1 my-3">
                     <div class="row my-3 align-items-center">
                         <!-- Title -->
-                        <div class="col-auto inline-edit" data-field="Title">
+                        <div class="col-md-8 inline-edit" data-field="Title">
 
                             <div class="view d-flex align-items-center h1">
                                 <i class="bi bi-folder-plus me-3"></i>
@@ -42,7 +42,7 @@
 
                         <!-- Status -->
                         <div class="col-auto ms-auto inline-edit" data-field="StatusEnum">
-                            <div class="view">
+                            <div class="view d-flex justify-content-end">
                                 <!-- Enlarged badge using fs-1 and extra padding -->
                                 <span class="badge fs-3 py-2 px-3 @(Model.Project.IsActive ? "bg-success" : "bg-secondary")">
                                     @Model.Project.StatusDisplay
@@ -145,7 +145,7 @@
           refreshElsWithVals();
 
           // On double-click, switch to edit
-          wrapper.addEventListener('dblclick', () => {
+          wrapper.addEventListener('click', () => {
             viewEl.classList.add('d-none');
             editEl.classList.remove('d-none');
             refreshElsWithVals();

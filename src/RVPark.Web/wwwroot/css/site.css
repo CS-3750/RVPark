@@ -60,3 +60,18 @@ html, body {
 .secondary-offcanvas {
     width: 300px; /* Width of your secondary drawer */
 }
+
+.inline-edit .view {
+    transition: transform 0.15s ease-out, box-shadow 0.15s ease-out;
+    will-change: transform, box-shadow;
+    border-radius: 6px;
+    -webkit-font-smoothing: antialiased;
+    transform-style: preserve-3d;
+}
+
+    .inline-edit .view:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        background-color: rgba(var(--bs-secondary-rgb), 0.05);
+        cursor: pointer;
+    }
