@@ -4,10 +4,6 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using RVPark.Application;
 using RVPark.Core.Models;
 using RVPark.Core.Utilities;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
 using System.Security.Claims;
 
 namespace RVPark.Web.Pages.Shared.Projects
@@ -18,6 +14,7 @@ namespace RVPark.Web.Pages.Shared.Projects
 
         [BindProperty]
         public Project Project { get; set; }
+        public List<ProjectTask> Tasks { get; set; } = new List<ProjectTask>();
 
         // dropdown items for StatusEnum
         public List<SelectListItem> StatusOptions { get; set; }
@@ -40,6 +37,15 @@ namespace RVPark.Web.Pages.Shared.Projects
                 .ToList();
         }
 
+        private void PopulateTasks(Project Project)
+        {
+            if (Project.Id == 0) return;
+            Tasks = _UnitOfWork.ProjectTask
+                .GetAll(pt => pt.ProjectId == Project.Id)
+                .OrderBy(ProjectId => ProjectId.StartDate)
+                .ToList();
+        }
+
         public IActionResult OnGet(int? id)
         {
             PopulateStatusOptions();
@@ -58,6 +64,7 @@ namespace RVPark.Web.Pages.Shared.Projects
                 Project = _UnitOfWork.Project.GetById(id.Value);
                 if (Project == null)
                     return NotFound();
+                PopulateTasks(Project);
             }
 
             return Page();
@@ -68,6 +75,7 @@ namespace RVPark.Web.Pages.Shared.Projects
             if (!ModelState.IsValid)
             {
                 PopulateStatusOptions();
+                PopulateTasks(Project);
                 return Page();
             }
 
@@ -97,5 +105,56 @@ namespace RVPark.Web.Pages.Shared.Projects
             //_UnitOfWork.SaveChanges();  // save changes
             return RedirectToPage("./Index");
         }
+
+        public IActionResult OnPostUpdateTask([FromBody] GanttTaskUpdateModel update)
+        {
+            var task = _UnitOfWork.ProjectTask.GetById(update.Id);
+            if (task == null) return NotFound();
+            task.StartDate = DateTime.Parse(update.Start);
+            task.EndDate = DateTime.Parse(update.End);
+            _UnitOfWork.ProjectTask.Update(task);
+            var dto = new ProjectTaskDto
+            {
+                id = task.Id.ToString(),
+                projectId = task.ProjectId,
+                title = task.Title,
+                description = task.Description,
+                startDate = task.StartDate?.ToString("yyy-MM-dd") ?? "",
+                endDate = task.EndDate?.ToString("yyy-MM-dd") ?? "",
+                isScheduled = task.IsScheduled,
+                isActive = task.IsActive,
+                isCompleted = task.IsCompleted,
+                statusDisplay = task.StatusDisplay,
+                statusBadgeClass = task.StatusBadgeClass
+            };
+            return new JsonResult(new {
+                success = true,
+                task = dto,
+                task_complete = task.IsCompleted 
+            });
+        }
     }
+
+    public class ProjectTaskDto
+    {
+        public string id { get; set; }
+        public int projectId { get; set; }
+        public string title { get; set; }
+        public string description { get; set; }
+        public string startDate { get; set; }
+        public string endDate { get; set; }
+        public bool isScheduled { get; set; }
+        public bool isActive { get; set; }
+        public bool isCompleted { get; set; }
+        public string statusDisplay { get; set; }
+        public string statusBadgeClass { get; set; }
+    }
+
+    public class GanttTaskUpdateModel
+    {
+        public int Id { get; set; }
+        public string Start { get; set; }
+        public string End { get; set; }
+    }
+
 }
