@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using RVPark.Application;
 using RVPark.Core.Models;
 using RVPark.Core.Utilities;
+using System.Globalization;
 using System.Security.Claims;
 
 namespace RVPark.Web.Pages.Shared.Projects
@@ -14,6 +15,7 @@ namespace RVPark.Web.Pages.Shared.Projects
 
         [BindProperty]
         public Project Project { get; set; }
+        public ProjectUser ProjectUser { get; set; }
         public List<ProjectTask> Tasks { get; set; } = new List<ProjectTask>();
 
         // dropdown items for StatusEnum
@@ -64,6 +66,9 @@ namespace RVPark.Web.Pages.Shared.Projects
                 Project = _UnitOfWork.Project.GetById(id.Value);
                 if (Project == null)
                     return NotFound();
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                ProjectUser = _UnitOfWork.ProjectUser.Get(pu => pu.ApplicationUserId == userId && pu.ProjectId == Project.Id);
+                if (ProjectUser == null) return Forbid(); // TODO: Build a Permission Denied Page and redirect there.
                 PopulateTasks(Project);
             }
 
@@ -102,7 +107,6 @@ namespace RVPark.Web.Pages.Shared.Projects
                 _UnitOfWork.Project.Update(Project);
             }
                 
-            //_UnitOfWork.SaveChanges();  // save changes
             return RedirectToPage("./Index");
         }
 
@@ -110,8 +114,8 @@ namespace RVPark.Web.Pages.Shared.Projects
         {
             var task = _UnitOfWork.ProjectTask.GetById(update.Id);
             if (task == null) return NotFound();
-            task.StartDate = DateTime.Parse(update.Start);
-            task.EndDate = DateTime.Parse(update.End);
+            task.StartDate = DateTime.Parse(update.Start, null, DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal);
+            task.EndDate = DateTime.Parse(update.End, null, DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal);
             _UnitOfWork.ProjectTask.Update(task);
             var dto = new ProjectTaskDto
             {
@@ -119,8 +123,8 @@ namespace RVPark.Web.Pages.Shared.Projects
                 projectId = task.ProjectId,
                 title = task.Title,
                 description = task.Description,
-                startDate = task.StartDate?.ToString("yyy-MM-dd") ?? "",
-                endDate = task.EndDate?.ToString("yyy-MM-dd") ?? "",
+                startDate = task.StartDate,
+                endDate = task.EndDate,
                 isScheduled = task.IsScheduled,
                 isActive = task.IsActive,
                 isCompleted = task.IsCompleted,
@@ -141,8 +145,8 @@ namespace RVPark.Web.Pages.Shared.Projects
         public int projectId { get; set; }
         public string title { get; set; }
         public string description { get; set; }
-        public string startDate { get; set; }
-        public string endDate { get; set; }
+        public DateTime? startDate { get; set; }
+        public DateTime? endDate { get; set; }
         public bool isScheduled { get; set; }
         public bool isActive { get; set; }
         public bool isCompleted { get; set; }
