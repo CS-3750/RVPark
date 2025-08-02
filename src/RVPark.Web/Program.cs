@@ -5,6 +5,8 @@ using RVPark.Application;
 using RVPark.Core.Interfaces;
 using RVPark.Core.Models;
 using RVPark.Core.Utilities;
+using Amazon.S3;
+using Amazon;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,6 +26,23 @@ builder.Services.AddSingleton<IEmailSender, FakeEmailSender>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<UnitOfWork>();
 builder.Services.AddScoped<IProjectService, ProjectService>();
+
+// Configure AWS S3
+var awsAccessKey = builder.Configuration["AWS:AccessKey"];
+var awsSecretKey = builder.Configuration["AWS:SecretKey"];
+var awsRegion = RegionEndpoint.GetBySystemName(builder.Configuration["AWS:Region"] ?? "us-east-1");
+
+builder.Services.AddSingleton<IAmazonS3>(provider =>
+{
+    var config = new AmazonS3Config
+    {
+        RegionEndpoint = awsRegion,
+        ForcePathStyle = false
+    };
+    return new AmazonS3Client(awsAccessKey, awsSecretKey, config);
+});
+
+builder.Services.AddScoped<IS3Service, S3Service>();
 
 // Add Identity services with ApplicationDbContext
 builder.Services.AddIdentity<IdentityUser, IdentityRole>()
