@@ -246,6 +246,59 @@ namespace RVPark.Web.Controllers
             }
         }
 
+        [HttpGet("file/{fileId}/versions")]
+        public async Task<IActionResult> GetFileVersions(int fileId)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null) return Unauthorized();
+
+            try
+            {
+                var file = await _context.Files.FindAsync(fileId);
+                if (file == null) return NotFound("File not found");
+
+                // Check project access
+                var projectFile = await _context.ProjectFiles.FirstOrDefaultAsync(pf => pf.FileId == fileId);
+                if (projectFile == null) return NotFound("File not associated with any project");
+
+                var hasAccess = await _context.ProjectUsers
+                    .AnyAsync(pu => pu.ApplicationUserId == userId && pu.ProjectId == projectFile.ProjectId);
+
+                if (!hasAccess) return Forbid("You don't have access to this project");
+
+                // Get all versions of this file
+                var allVersions = await _context.Files
+                    .Where(f => f.Name == file.Name)
+                    .Join(_context.ProjectFiles, f => f.Id, pf => pf.FileId, (f, pf) => new { File = f, pf.ProjectId })
+                    .Where(x => x.ProjectId == projectFile.ProjectId)
+                    .Select(x => x.File)
+                    .OrderByDescending(f => f.Version)
+                    .ToListAsync();
+
+                var userIds = allVersions.Select(f => f.CreatedByApplicationUserId).Distinct().ToList();
+                var users = await _context.ApplicationUsers
+                    .Where(u => userIds.Contains(u.Id))
+                    .ToDictionaryAsync(u => u.Id, u => u.UserName);
+
+                var result = allVersions.Select(f => new
+                {
+                    f.Id,
+                    f.Version,
+                    f.UploadedAt,
+                    FileSizeDisplay = f.FileSizeBytes.HasValue ? FormatFileSize(f.FileSizeBytes.Value) : "Unknown",
+                    f.VersionDescription,
+                    f.IsLatestVersion,
+                    UploadedBy = users.GetValueOrDefault(f.CreatedByApplicationUserId, "Unknown")
+                });
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error retrieving file versions: {ex.Message}");
+            }
+        }
+
         private static string FormatFileSize(long bytes)
         {
             string[] sizes = { "B", "KB", "MB", "GB", "TB" };

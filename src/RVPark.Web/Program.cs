@@ -49,8 +49,9 @@ builder.Services.AddIdentity<IdentityUser, IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 
-// Add Razor Pages support (if you need MVC, add services.AddControllersWithViews() instead)
+// Add Razor Pages and API Controllers support
 builder.Services.AddRazorPages();
+builder.Services.AddControllers();
 
 builder.Services.AddSession(options =>
 {
@@ -78,6 +79,7 @@ app.UseAuthorization(); // Add authorization middleware for [Authorize] attribut
 app.UseSession();
 
 app.MapRazorPages();
+app.MapControllers();
 
 await SeedDatabaseAsync(app);
 
