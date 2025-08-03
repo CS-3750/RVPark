@@ -188,6 +188,51 @@
                     </div>
                 </div>
             </div>
+            <!-- Quick Time Logging Section -->
+            <div class="col-md-12 mt-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="bi bi-clock me-2"></i>
+                            Quick Time Entry
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="quickTimeEntryForm" class="row g-3">
+                            <div class="col-md-4">
+                                <label for="quickTaskSelect" class="form-label">Task</label>
+                                <select class="form-select" id="quickTaskSelect" required>
+                                    <option value="">Select a task...</option>
+                                    <!-- Tasks will be populated via JavaScript -->
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <label for="quickTimeEntryHours" class="form-label">Hours</label>
+                                <input type="number" class="form-control" id="quickTimeEntryHours" 
+                                       min="0.25" max="24" step="0.25" 
+                                       placeholder="e.g., 1.5" required>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="quickTimeEntryDate" class="form-label">Date</label>
+                                <input type="date" class="form-control" id="quickTimeEntryDate" required>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">&nbsp;</label>
+                                <button type="button" class="btn btn-primary w-100" id="quickLogTimeButton">
+                                    <i class="bi bi-plus-circle me-1"></i>
+                                    Log Time
+                                </button>
+                            </div>
+                            <div class="col-md-12">
+                                <label for="quickTimeEntryDescription" class="form-label">Description (optional)</label>
+                                <input type="text" class="form-control" id="quickTimeEntryDescription" 
+                                       placeholder="What did you work on?">
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
             <div class="col-md-12 mt-5 mb-2">
                 <div class="row justify-content-evenly">
                     <a asp-page="./AssetRequest" asp-route-projectId="@Model.Project.Id" class="card col-md-4 py-3 btn btn-secondary text-decoration-none">
@@ -425,6 +470,84 @@
                 scroll_to: "start",
                 readonly_progress: true,
             });
+        });
+    </script>
+    <script>
+        // Quick Time Entry functionality
+        $(document).ready(function() {
+            // Set today's date as default
+            $('#quickTimeEntryDate').val(new Date().toISOString().split('T')[0]);
+            
+            // Populate task dropdown with project tasks
+            function populateTaskDropdown() {
+                const $taskSelect = $('#quickTaskSelect');
+                $taskSelect.find('option:not(:first)').remove(); // Keep placeholder option
+                
+                tasksJson.forEach(task => {
+                    $taskSelect.append(`<option value="${task.id}">${task.title}</option>`);
+                });
+            }
+            
+            // Initialize task dropdown
+            populateTaskDropdown();
+            
+            // Handle quick time entry submission
+            $('#quickLogTimeButton').click(async function() {
+                const taskId = $('#quickTaskSelect').val();
+                const hours = parseFloat($('#quickTimeEntryHours').val());
+                const date = $('#quickTimeEntryDate').val();
+                const description = $('#quickTimeEntryDescription').val().trim();
+                
+                if (!taskId || !hours || !date) {
+                    showQuickAlert('Please fill in all required fields', 'warning');
+                    return;
+                }
+                
+                try {
+                    const response = await fetch('/api/timetracking/entry', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            projectTaskId: parseInt(taskId),
+                            hours: hours,
+                            date: date,
+                            description: description || null
+                        })
+                    });
+                    
+                    if (!response.ok) throw new Error('Failed to save time entry');
+                    
+                    showQuickAlert('Time logged successfully!', 'success');
+                    resetQuickTimeForm();
+                    
+                } catch (error) {
+                    console.error('Error saving time entry:', error);
+                    showQuickAlert('Error logging time: ' + error.message, 'danger');
+                }
+            });
+            
+            // Reset quick time entry form
+            function resetQuickTimeForm() {
+                $('#quickTimeEntryForm')[0].reset();
+                $('#quickTaskSelect').val('');
+                $('#quickTimeEntryDate').val(new Date().toISOString().split('T')[0]);
+            }
+            
+            // Show alert for quick time entry
+            function showQuickAlert(message, type) {
+                const alertHtml = `
+                    <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                        ${message}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                `;
+                $('.card:first').prepend(alertHtml);
+                
+                // Auto-dismiss after 3 seconds
+                setTimeout(() => {
+                    $('.alert').alert('close');
+                }, 3000);
+            }
         });
     </script>
     <script>
