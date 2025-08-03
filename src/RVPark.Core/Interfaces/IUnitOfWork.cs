@@ -16,6 +16,7 @@ namespace RVPark.Core.Interfaces
         IGenericRepository<ProjectTask> ProjectTask { get; }
         IGenericRepository<ProjectUser> ProjectUser { get; }
         IGenericRepository<ProjectUserHoursLog> ProjectUserHoursLog { get; }
+        IGenericRepository<TimeEntry> TimeEntry { get; }
         IGenericRepository<ApplicationUser> User { get; }
     }
 }
