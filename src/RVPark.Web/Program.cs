@@ -50,7 +50,8 @@ builder.Services.AddIdentity<IdentityUser, IdentityRole>()
     .AddDefaultTokenProviders();
 
 // Add Razor Pages and API Controllers support
-builder.Services.AddRazorPages();
+builder.Services.AddRazorPages(
+    options => {options.Conventions.AddPageRoute("/Shared/Projects/Index", "/");});
 builder.Services.AddControllers();
 
 builder.Services.AddSession(options =>
