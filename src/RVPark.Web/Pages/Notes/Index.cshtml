@@ -1,0 +1,54 @@
+﻿@page
+@model RVPark.Pages.Notes.IndexModel
+@{
+    ViewData["Title"] = "Notes";
+}
+
+<div class="container mt-4">
+    <h2>Notes</h2>
+    <form method="post" class="mb-4">
+        <div class="mb-3">
+            <label asp-for="Title" class="form-label">Title</label>
+            <input asp-for="Title" class="form-control" />
+            <span asp-validation-for="Title" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="Content" class="form-label">Note</label>
+            <textarea asp-for="Content" class="form-control" rows="3"></textarea>
+            <span asp-validation-for="Content" class="text-danger"></span>
+        </div>
+        <button type="submit" class="btn btn-primary">Add Note</button>
+    </form>
+
+    <hr />
+
+    <div>
+        @if (Model.Notes != null && Model.Notes.Any())
+        {
+            <div class="row row-cols-1 row-cols-md-2 g-4">
+                @foreach (var note in Model.Notes)
+                {
+                    <div class="col">
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h5 class="card-title">@note.Title</h5>
+                                <p class="card-text">@note.Content</p>
+                            </div>
+                            <div class="card-footer text-muted">
+                                @note.Created.ToString("g")
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <p>No notes yet.</p>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
