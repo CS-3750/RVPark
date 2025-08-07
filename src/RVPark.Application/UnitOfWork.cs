@@ -22,6 +22,7 @@ namespace RVPark.Application
         private IGenericRepository<ProjectTask> _ProjectTask;
         private IGenericRepository<ProjectUser> _ProjectUser;
         private IGenericRepository<ProjectUserHoursLog> _ProjectUserHoursLog;
+        private IGenericRepository<TimeEntry> _TimeEntry;
         private IGenericRepository<ApplicationUser> _User;
 
         public UnitOfWork(ApplicationDbContext db)
@@ -124,6 +125,15 @@ namespace RVPark.Application
             {
                 _ProjectUserHoursLog ??= new GenericRepository<ProjectUserHoursLog>(_db);
                 return _ProjectUserHoursLog;
+            }
+        }
+
+        public IGenericRepository<TimeEntry> TimeEntry
+        {
+            get
+            {
+                _TimeEntry ??= new GenericRepository<TimeEntry>(_db);
+                return _TimeEntry;
             }
         }
 

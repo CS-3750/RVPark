@@ -1,0 +1,384 @@
+@page "/Shared/Projects/{projectId}/Files"
+@model FilesModel
+@{
+    ViewData["Title"] = "Project Files";
+}
+
+<div class="container my-4">
+    <div class="card col-md-10 offset-1 mt-3 px-5 py-3">
+        <div class="row mb-4">
+            <a asp-page="/Shared/Projects/Upsert" asp-route-id="@Model.ProjectId"
+               class="link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover position-absolute top-0 start-0 m-4">
+                <i class="bi bi-arrow-left"></i>
+                Back to Project
+            </a>
+        </div>
+
+        <div class="row">
+            <div class="col-md-10 offset-1">
+                <div class="row my-4">
+                    <div class="col-md-8">
+                        <h1 class="my-3">
+                            <i class="bi bi-file-earmark-arrow-down me-2"></i>
+                            Project Files
+                        </h1>
+                    </div>
+                    <div class="col-md-4 d-flex align-items-center justify-content-end">
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#uploadModal">
+                            <i class="bi bi-upload me-1"></i>
+                            Upload File
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Filters -->
+                <div class="row my-4 gy-2 gx-3 align-items-center">
+                    <div class="col-auto">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="latestOnlyFilter" checked>
+                            <label class="form-check-label" for="latestOnlyFilter">
+                                Latest versions only
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-auto ms-auto d-flex align-items-center flex-nowrap">
+                        <div class="input-group">
+                            <input type="text" id="searchInput" class="form-control" placeholder="Search files..." />
+                            <button class="btn btn-outline-secondary" id="searchButton">Search</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Files List -->
+                <div class="row" id="filesContainer">
+                    <!-- Files will be loaded here via JavaScript -->
+                </div>
+
+                <!-- No files message -->
+                <div id="noFilesMessage" class="alert alert-info text-center mt-4 d-none">
+                    <i class="bi bi-file-earmark me-2"></i>
+                    No files have been uploaded to this project yet.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Upload Modal -->
+<div class="modal fade" id="uploadModal" tabindex="-1" aria-labelledby="uploadModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="uploadModalLabel">Upload File</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="uploadForm">
+                    <div class="mb-3">
+                        <label for="fileInput" class="form-label">Select File</label>
+                        <input type="file" class="form-control" id="fileInput" required>
+                        <div class="form-text">Maximum file size: 100MB</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="versionDescription" class="form-label">Version Description (optional)</label>
+                        <textarea class="form-control" id="versionDescription" rows="3" placeholder="Describe changes or notes for this version..."></textarea>
+                    </div>
+                    <div class="progress d-none" id="uploadProgress">
+                        <div class="progress-bar" role="progressbar" style="width: 0%"></div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="uploadButton">Upload</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- File Versions Modal -->
+<div class="modal fade" id="versionsModal" tabindex="-1" aria-labelledby="versionsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="versionsModalLabel">File Versions</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="versionsContainer">
+                    <!-- Version history will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const projectId = @Model.ProjectId;
+        let files = [];
+        let latestOnly = true;
+
+        // Load files on page load
+        $(document).ready(function() {
+            loadFiles();
+        });
+
+        // Load files from API
+        async function loadFiles() {
+            try {
+                const response = await fetch(`/api/filemanager/project/${projectId}/files?latestOnly=${latestOnly}`);
+                if (!response.ok) throw new Error('Failed to load files');
+                
+                files = await response.json();
+                renderFiles(files);
+            } catch (error) {
+                console.error('Error loading files:', error);
+                showAlert('Error loading files', 'danger');
+            }
+        }
+
+        // Render files list
+        function renderFiles(filesToRender) {
+            const container = $('#filesContainer');
+            const noFilesMsg = $('#noFilesMessage');
+            
+            if (filesToRender.length === 0) {
+                container.empty();
+                noFilesMsg.removeClass('d-none');
+                return;
+            }
+            
+            noFilesMsg.addClass('d-none');
+            container.empty();
+            
+            filesToRender.forEach(file => {
+                const fileCard = createFileCard(file);
+                container.append(fileCard);
+            });
+        }
+
+        // Create file card HTML
+        function createFileCard(file) {
+            const uploadDate = new Date(file.uploadedAt).toLocaleDateString('en-US', {
+                month: 'short', day: 'numeric', year: 'numeric'
+            });
+            
+            return `
+                <div class="col-lg-4 col-md-6 mb-4 file-card" data-filename="${file.name.toLowerCase()}">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h6 class="mb-0 text-truncate" title="${file.name}">
+                                <i class="bi bi-file-earmark me-1"></i>
+                                ${file.name}
+                            </h6>
+                            ${file.isLatestVersion ? '<span class="badge bg-success">Latest</span>' : `<span class="badge bg-secondary">v${file.version}</span>`}
+                        </div>
+                        <div class="card-body d-flex flex-column">
+                            <ul class="list-unstyled mb-3 small text-muted flex-grow-1">
+                                <li><i class="bi bi-person me-1"></i>${file.uploadedBy}</li>
+                                <li><i class="bi bi-calendar-event me-1"></i>${uploadDate}</li>
+                                <li><i class="bi bi-hdd me-1"></i>${file.fileSizeDisplay}</li>
+                                ${file.versionDescription ? `<li><i class="bi bi-chat-text me-1"></i>${file.versionDescription}</li>` : ''}
+                            </ul>
+                            <div class="d-flex gap-1">
+                                <button class="btn btn-sm btn-primary flex-fill" onclick="downloadFile(${file.id})">
+                                    <i class="bi bi-download me-1"></i>Download
+                                </button>
+                                <button class="btn btn-sm btn-outline-secondary" onclick="showVersions(${file.id}, '${file.name}')">
+                                    <i class="bi bi-clock-history me-1"></i>Versions
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Download file
+        async function downloadFile(fileId, version = null) {
+            try {
+                const url = version ? `/api/filemanager/download/${fileId}?version=${version}` : `/api/filemanager/download/${fileId}`;
+                const response = await fetch(url);
+                if (!response.ok) throw new Error('Failed to get download URL');
+                
+                const data = await response.json();
+                window.open(data.downloadUrl, '_blank');
+            } catch (error) {
+                console.error('Error downloading file:', error);
+                showAlert('Error downloading file', 'danger');
+            }
+        }
+
+        // Show file versions
+        async function showVersions(fileId, fileName) {
+            try {
+                const response = await fetch(`/api/filemanager/file/${fileId}/versions`);
+                if (!response.ok) throw new Error('Failed to load versions');
+                
+                const versions = await response.json();
+                renderVersions(versions, fileName);
+                const modal = new bootstrap.Modal(document.getElementById('versionsModal'));
+                modal.show();
+            } catch (error) {
+                console.error('Error loading versions:', error);
+                showAlert('Error loading file versions', 'danger');
+            }
+        }
+
+        // Render versions in modal
+        function renderVersions(versions, fileName) {
+            const container = $('#versionsContainer');
+            $('#versionsModalLabel').text(`Versions of ${fileName}`);
+            
+            container.empty();
+            
+            versions.forEach(version => {
+                const uploadDate = new Date(version.uploadedAt).toLocaleDateString('en-US', {
+                    month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit'
+                });
+                
+                const versionItem = `
+                    <div class="d-flex justify-content-between align-items-center border-bottom py-3">
+                        <div>
+                            <div class="fw-bold">
+                                Version ${version.version}
+                                ${version.isLatestVersion ? '<span class="badge bg-success ms-2">Latest</span>' : ''}
+                            </div>
+                            <div class="text-muted small">
+                                <i class="bi bi-person me-1"></i>${version.uploadedBy} • 
+                                <i class="bi bi-calendar-event me-1"></i>${uploadDate} • 
+                                <i class="bi bi-hdd me-1"></i>${version.fileSizeDisplay}
+                            </div>
+                            ${version.versionDescription ? `<div class="text-muted small mt-1">${version.versionDescription}</div>` : ''}
+                        </div>
+                        <button class="btn btn-sm btn-outline-primary" onclick="downloadFile(${version.id}, ${version.version})">
+                            <i class="bi bi-download me-1"></i>Download
+                        </button>
+                    </div>
+                `;
+                container.append(versionItem);
+            });
+        }
+
+        // File upload handling
+        $('#uploadButton').click(async function() {
+            const fileInput = document.getElementById('fileInput');
+            const versionDescription = document.getElementById('versionDescription').value.trim();
+            
+            if (!fileInput.files.length) {
+                showAlert('Please select a file', 'warning');
+                return;
+            }
+            
+            const file = fileInput.files[0];
+            const maxSize = 100 * 1024 * 1024; // 100MB
+            
+            if (file.size > maxSize) {
+                showAlert('File size exceeds 100MB limit', 'warning');
+                return;
+            }
+            
+            try {
+                // Show progress
+                $('#uploadProgress').removeClass('d-none');
+                $('#uploadButton').prop('disabled', true);
+                
+                // Step 1: Get upload URL
+                const urlResponse = await fetch('/api/filemanager/upload-url', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        fileName: file.name,
+                        projectId: projectId
+                    })
+                });
+                
+                if (!urlResponse.ok) throw new Error('Failed to get upload URL');
+                const uploadData = await urlResponse.json();
+                
+                // Step 2: Upload to S3
+                const uploadResponse = await fetch(uploadData.uploadUrl, {
+                    method: 'PUT',
+                    body: file,
+                    headers: {
+                        'Content-Type': file.type
+                    }
+                });
+                
+                if (!uploadResponse.ok) throw new Error('Failed to upload file');
+                
+                // Step 3: Confirm upload
+                const confirmResponse = await fetch('/api/filemanager/confirm-upload', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        fileName: file.name,
+                        projectId: projectId,
+                        version: uploadData.version,
+                        s3Key: uploadData.s3Key,
+                        fileSizeBytes: file.size,
+                        versionDescription: versionDescription || null
+                    })
+                });
+                
+                if (!confirmResponse.ok) throw new Error('Failed to confirm upload');
+                
+                // Success
+                showAlert('File uploaded successfully!', 'success');
+                $('#uploadModal').modal('hide');
+                resetUploadForm();
+                loadFiles(); // Refresh file list
+                
+            } catch (error) {
+                console.error('Upload error:', error);
+                showAlert('Error uploading file: ' + error.message, 'danger');
+            } finally {
+                $('#uploadProgress').addClass('d-none');
+                $('#uploadButton').prop('disabled', false);
+            }
+        });
+
+        // Reset upload form
+        function resetUploadForm() {
+            document.getElementById('uploadForm').reset();
+            $('#uploadProgress .progress-bar').css('width', '0%');
+        }
+
+        // Filter handling
+        $('#latestOnlyFilter').change(function() {
+            latestOnly = this.checked;
+            loadFiles();
+        });
+
+        // Search handling
+        function applySearch() {
+            const searchTerm = $('#searchInput').val().toLowerCase().trim();
+            const filteredFiles = searchTerm 
+                ? files.filter(file => file.name.toLowerCase().includes(searchTerm))
+                : files;
+            renderFiles(filteredFiles);
+        }
+
+        $('#searchButton').click(applySearch);
+        $('#searchInput').keyup(function(e) {
+            if (e.key === 'Enter') applySearch();
+        });
+
+        // Utility function to show alerts
+        function showAlert(message, type) {
+            const alertHtml = `
+                <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            `;
+            $('.container').prepend(alertHtml);
+            
+            // Auto-dismiss after 5 seconds
+            setTimeout(() => {
+                $('.alert').alert('close');
+            }, 5000);
+        }
+    </script>
+}

@@ -16,6 +16,7 @@ namespace RVPark.Application
         public DbSet<ProjectUser> ProjectUsers { get; set; }
         public DbSet<ProjectTask> ProjectTasks { get; set; }
         public DbSet<ProjectUserHoursLog> ProjectUserHourLogs { get; set; }
+        public DbSet<TimeEntry> TimeEntries { get; set; }
         public DbSet<Core.Models.File> Files { get; set; }
         public DbSet<ProjectFile> ProjectFiles { get; set; }
         public DbSet<Message> Messages { get; set; }
