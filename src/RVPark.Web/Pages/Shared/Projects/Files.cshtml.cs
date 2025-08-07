@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using RVPark.Application;
+using RVPark.Core.Models;
 using System.Security.Claims;
 
 namespace RVPark.Web.Pages.Shared.Projects

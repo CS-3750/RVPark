@@ -16,9 +16,9 @@ namespace RVPark.Web.Controllers
     {
         private readonly IS3Service _s3Service;
         private readonly ApplicationDbContext _context;
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public FileManagerController(IS3Service s3Service, ApplicationDbContext context, UserManager<IdentityUser> userManager)
+        public FileManagerController(IS3Service s3Service, ApplicationDbContext context, UserManager<ApplicationUser> userManager)
         {
             _s3Service = s3Service;
             _context = context;
