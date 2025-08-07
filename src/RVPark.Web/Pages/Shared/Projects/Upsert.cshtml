@@ -171,13 +171,21 @@
                                     <input type="text" id="searchInput" class="form-control" placeholder="Search project tasks..." />
                                     <button class="btn btn-outline-secondary" id="searchButton">Search</button>
                                 </div>
-                                <a asp-page="/Shared/Projects/ProjectTasks/Upsert"
-                                   asp-route-projectId="@Model.Project.Id"
-                                   asp-route-projectTaskId=0
-                                   class="btn btn-primary ms-2 text-nowrap">
-                                    <i class="bi bi-list-check me-1"></i>
-                                    New Task
-                                </a>
+                                @if (Model.ProjectUser.CanAddTasks)
+                                {
+                                    <a asp-page="/Shared/Projects/ProjectTasks/Upsert"
+                                       asp-route-projectId="@Model.Project.Id"
+                                       asp-route-projectTaskId=0
+                                       class="btn btn-primary ms-2 text-nowrap">
+                                        <i class="bi bi-list-check me-1"></i>
+                                        New Task
+                                    </a>
+                                } else
+                                {
+                                    <span class="d-inline-block" taxindex="0" data-bs-toggle="tooltip" data-bs-title="You don't have permissions to add tasks.">
+                                        <button type="button" class="btn btn-secondary ms-2 text-nowrap" disabled>New Task</button>
+                                    </span>
+                                }
                             </div>
                         </div>
                         <div class="row">
@@ -401,37 +409,17 @@
                     index = idx.toString();
                     tasksJson[index] = updated;
                 }
-                const ganttTask = gantt.tasks.find(t => t.id === task.id);
-                if (ganttTask) {
-                    ganttTask.start = new Date(start);
-                    ganttTask.end = new Date(end);
-                    const progress = data.task_complete ? 100 : 0;
-                    ganttTask.progress = progress
-                    if (ganttRefreshTimeout) {
-                        clearTimeout(ganttRefreshTimeout);
-                    }
-                    ganttRefreshTimeout = setTimeout(() => {
-                        let start = ganttTask.start ? ganttTask.start.toISOString().slice(0,10) : "";
-                        let end = ganttTask.end ? ganttTask.end.toISOString().slice(0,10) : "";
-                        gantt.update_task(ganttTask.id, {
-                            start: start,
-                            end: end,
-                            progress: progress,
-                        });
-                    }, 200);
-                    dragResetTimeout = setTimeout(() => {
-                        wasDragged = false;
-                    }, 300);
-
-                }
+                dragResetTimeout = setTimeout(() => {
+                    wasDragged = false;
+                }, 200);
             })
             .catch(err => {
                 console.error(err);
             });
         }
-        
 
         $(() => {
+            $('[data-bs-toggle="tooltip"]').tooltip();
             renderCards(tasksJson);
             $('#taskViewSelect').on('change', () => {
                 const selectedView = $('#taskViewSelect').val();
@@ -467,6 +455,7 @@
                     }, 500);
                 },
                 popup_on: 'hover',
+                readonly: @(Model.ProjectUser.CanEditTasks ? "false" : "true"),
                 scroll_to: "start",
                 readonly_progress: true,
             });
@@ -586,20 +575,23 @@
                 let displayText;
 
                 if (editElWithVal.type === 'date') {
-                // this gives you a Date at local midnight, or null if blank
-                const d = editElWithVal.valueAsDate;
-                displayText = d
-                    ? d.toLocaleDateString(undefined, {
-                        month: 'short', day: 'numeric', year: 'numeric'
-                    })
-                    : 'TBD';
+                    const iso = editElWithVal.value;            // e.g. "2025-07-28"
+                    if (iso) {
+                        const [y, m, d] = iso.split('-').map(Number);
+                        const dateObj = new Date(y, m - 1, d); // local midnight
+                        displayText = new Intl.DateTimeFormat(undefined, {
+                            month: 'short', day: 'numeric', year: 'numeric'
+                        }).format(dateObj);
+                    } else {
+                        displayText = 'TBD';
+                    }
                 }
                 else {
-                // trim out any stray spaces, then see if there's anything left
-                const raw = editElWithVal.value.trim();
-                displayText = raw === ''
-                    ? 'TBD'
-                    : raw;
+                    // trim out any stray spaces, then see if there's anything left
+                    const raw = editElWithVal.value.trim();
+                    displayText = raw === ''
+                        ? 'TBD'
+                        : raw;
                 }
 
                 // set the span
