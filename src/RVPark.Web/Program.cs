@@ -61,6 +61,8 @@ builder.Services.AddRazorPages(options =>
     options.Conventions.AuthorizeFolder("/Shared/Projects");
 });
 // Add Razor Pages and API Controllers support
+builder.Services.AddRazorPages(
+    options => {options.Conventions.AddPageRoute("/Shared/Projects/Index", "/");});
 builder.Services.AddControllers();
 
 builder.Services.AddSession(options =>

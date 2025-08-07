@@ -136,13 +136,13 @@
                     <div class="col-md-12">
                         <!-- Page Title -->
                         <div class="row my-3">
-                            <div class="col-md-9">
+                            <div class="col-md">
                                 <h2 class="mb-3">
                                     <i class="bi bi-list-check me-2"></i>
                                     Tasks
                                 </h2>
                             </div>
-                            <div class="col-md-3">
+                            <div class="col-md-4">
                                 <div class="input-group">
                                     <select id="taskViewSelect"class="form-select">
                                         <option value="gantt" selected>Gantt</option>
@@ -244,16 +244,16 @@
             <div class="col-md-12 mt-5 mb-2">
                 <div class="row justify-content-evenly">
                     <a asp-page="./AssetRequest" asp-route-projectId="@Model.Project.Id" class="card col-md-4 py-3 btn btn-secondary text-decoration-none">
-                        <h3>
+                        <h4>
                             <i class="bi bi-box-seam me-2"></i>
                             Asset Requests
-                        </h3>
+                        </h4>
                     </a>
                     <a asp-page="./Files" asp-route-projectId="@Model.Project.Id" class="card col-md-4 py-3 btn btn-primary text-decoration-none">
-                        <h3>
+                        <h4>
                             <i class="bi bi-file-earmark-arrow-down me-2"></i>
                             Files
-                        </h3>
+                        </h4>
                     </a>
                 </div>
             </div>

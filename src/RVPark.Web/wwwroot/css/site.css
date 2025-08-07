@@ -51,8 +51,10 @@ html, body {
 }
 
 .main-content {
+    max-width: 100%;
     flex-grow: 1; /* Allow main content to take up remaining space */
     padding: 1.5rem;
+    overflow-x: hidden; /* Hide horizontal overflow within main content */
 }
 
 /* Adjust the offcanvas for secondary menu to potentially sit next to the main sidebar on larger screens */

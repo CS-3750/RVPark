@@ -25,12 +25,14 @@
 
     <div class="wrapper">
         <nav class="sidebar-persistent p-3 d-flex flex-column">
-            <h4 class="text-white mb-4">RVPark</h4>
+            <h4 class="text-white mb-4">
+                <a class="text-white text-decoration-none" asp-page="/Shared/Projects/Index">RVPark</a>
+            </h4>
             @if (SignInManager.IsSignedIn(User))
             {
                 <ul class="nav flex-column mb-auto">
                     <li class="nav-item">
-                        <a class="nav-link text-white" asp-area="Identity" asp-page="/Account/Manage/Index">
+                        <a class="nav-link text-white text-truncate d-inline-block" style="max-width: 150px;" asp-area="Identity" asp-page="/Account/Manage/Index">
                             @User.Identity?.Name
                         </a>
                     </li>
@@ -40,11 +42,14 @@
                             Projects
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-white" href="/admin/admintools">
-                            Admin Tools
-                        </a>
-                    </li>
+                    @if (await UserManager.IsInRoleAsync(user, "Admin"))
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="/admin/admintools">
+                                Admin Tools
+                            </a>
+                        </li>
+                    }
                 </ul>
             }
 
@@ -74,26 +79,6 @@
         <main class="main-content">
             @RenderBody()
         </main>
-    </div>
-
-    <div class="offcanvas offcanvas-start secondary-offcanvas bg-light" tabindex="-1" id="projectsOffcanvas" aria-labelledby="projectsOffcanvasLabel">
-        <div class="offcanvas-header">
-            <h5 class="offcanvas-title text-dark" id="projectsOffcanvasLabel">Your Projects</h5>
-            <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-        </div>
-        <div class="offcanvas-body">
-            <ul class="list-group list-group-flush">
-                @ViewData["Thing"]
-                @foreach (var project in projectList)
-                {
-                    <li class="list-group-item"><a href="#" class="text-decoration-none text-dark">@project.Name</a></li>
-                }
-            </ul>
-            <hr>
-            <div class="d-grid">
-                <button class="btn btn-outline-primary">Add New Project</button>
-            </div>
-        </div>
     </div>
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
