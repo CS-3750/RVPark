@@ -1,11 +1,17 @@
-﻿@page
-@model RVPark.Pages.Notes.IndexModel
+﻿@page "{projectId:int}"
+@using RVPark.Core.Models
+@model RVPark.Web.Pages.Shared.Projects.NotesModel
 @{
-    ViewData["Title"] = "Notes";
+    ViewData["Title"] = "Project Notes";
 }
 
 <div class="container mt-4">
-    <h2>Notes</h2>
+    <a asp-page="/Shared/Projects/Upsert" asp-route-id="@Model.ProjectId" class="btn btn-link mb-3">
+        <i class="bi bi-arrow-left"></i> Back to Project
+    </a>
+
+    <h2>Notes for Project #@Model.ProjectId</h2>
+
     <form method="post" class="mb-4">
         <div class="mb-3">
             <label asp-for="Title" class="form-label">Title</label>
@@ -23,10 +29,10 @@
     <hr />
 
     <div>
-        @if (Model.Notes != null && Model.Notes.Any())
+        @if (Model.ProjectNotes != null && Model.ProjectNotes.Any())
         {
             <div class="row row-cols-1 row-cols-md-2 g-4">
-                @foreach (var note in Model.Notes)
+                @foreach (var note in Model.ProjectNotes)
                 {
                     <div class="col">
                         <div class="card mb-3">
@@ -44,7 +50,7 @@
         }
         else
         {
-            <p>No notes yet.</p>
+            <p>No notes yet for this project.</p>
         }
     </div>
 </div>

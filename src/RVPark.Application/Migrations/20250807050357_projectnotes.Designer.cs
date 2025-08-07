@@ -12,8 +12,8 @@ using RVPark.Application;
 namespace RVPark.Application.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250806063712_notes-test")]
-    partial class notestest
+    [Migration("20250807050357_projectnotes")]
+    partial class projectnotes
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -364,31 +364,6 @@ namespace RVPark.Application.Migrations
                     b.ToTable("Messages");
                 });
 
-            modelBuilder.Entity("RVPark.Core.Models.Note", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Content")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("Created")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Notes");
-                });
-
             modelBuilder.Entity("RVPark.Core.Models.Payment", b =>
                 {
                     b.Property<int>("Id")
@@ -479,6 +454,36 @@ namespace RVPark.Application.Migrations
                     b.HasIndex("ProjectId");
 
                     b.ToTable("ProjectFiles");
+                });
+
+            modelBuilder.Entity("RVPark.Core.Models.ProjectNote", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("ProjectId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProjectId");
+
+                    b.ToTable("ProjectNotes");
                 });
 
             modelBuilder.Entity("RVPark.Core.Models.ProjectProposal", b =>
@@ -866,6 +871,17 @@ namespace RVPark.Application.Migrations
                         .IsRequired();
 
                     b.Navigation("File");
+
+                    b.Navigation("Project");
+                });
+
+            modelBuilder.Entity("RVPark.Core.Models.ProjectNote", b =>
+                {
+                    b.HasOne("RVPark.Core.Models.Project", "Project")
+                        .WithMany()
+                        .HasForeignKey("ProjectId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Project");
                 });

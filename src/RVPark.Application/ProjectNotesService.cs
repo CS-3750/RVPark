@@ -6,32 +6,32 @@ using RVPark.Core.Models;
 
 namespace RVPark.Application
 {
-    public class NotesService : INotesService
+    public class ProjectNotesService : IProjectNotesService
     {
         private readonly ApplicationDbContext _db;
 
-        public NotesService(ApplicationDbContext db)
+        public ProjectNotesService(ApplicationDbContext db)
         {
             _db = db;
         }
 
-        public async Task<List<Note>> GetAllNotesAsync()
+        public async Task<List<ProjectNote>> GetAllProjectNotesAsync()
         {
-            return await _db.Notes
+            return await _db.ProjectNotes
                 .OrderByDescending(n => n.Created)
                 .ToListAsync();
         }
 
-        public async Task<Note> AddNoteAsync(Note note)
+        public async Task<ProjectNote> AddProjectNoteAsync(ProjectNote note)
         {
-            _db.Notes.Add(note);
+            _db.ProjectNotes.Add(note);
             await _db.SaveChangesAsync();
             return note;
         }
 
-        public async Task<Note> GetNoteByIdAsync(int id)
+        public async Task<ProjectNote> GetProjectNoteByIdAsync(int id)
         {
-            return await _db.Notes.FindAsync(id);
+            return await _db.ProjectNotes.FindAsync(id);
         }
     }
 }
