@@ -69,9 +69,16 @@ html, body {
     transform-style: preserve-3d;
 }
 
-    .inline-edit .view:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-        background-color: rgba(var(--bs-secondary-rgb), 0.05);
-        cursor: pointer;
-    }
+.inline-edit .view:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    background-color: rgba(var(--bs-secondary-rgb), 0.05);
+    cursor: pointer;
+}
+
+#gantt {
+    box-sizing: border-box;
+    padding: 0.75rem;
+    border: 1px solid rgba(var(--bs-secondary-rgb), 0.25);
+    border-radius: 3px;
+}

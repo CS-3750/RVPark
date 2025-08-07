@@ -49,8 +49,18 @@ builder.Services.AddIdentity<IdentityUser, IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 
+// Set the Login Path for Authorization required
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.LoginPath = "/Identity/Account/Login";
+});
+
+// Add Razor Pages support (if you need MVC, add services.AddControllersWithViews() instead)
+builder.Services.AddRazorPages(options =>
+{
+    options.Conventions.AuthorizeFolder("/Shared/Projects");
+});
 // Add Razor Pages and API Controllers support
-builder.Services.AddRazorPages();
 builder.Services.AddControllers();
 
 builder.Services.AddSession(options =>
