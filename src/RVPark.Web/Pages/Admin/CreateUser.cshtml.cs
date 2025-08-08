@@ -14,11 +14,11 @@ namespace RVPark.Web.Pages.Admin
     [Authorize(Roles = SD.AdminRole)]
     public class CreateUserModel : PageModel
     {
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly UserManager<ApplicationUser> _userManager;
         private readonly IUnitOfWork _unitOfWork;
         private readonly ApplicationDbContext _context;
 
-        public CreateUserModel(UserManager<IdentityUser> userManager, IUnitOfWork unitOfWork, ApplicationDbContext context)
+        public CreateUserModel(UserManager<ApplicationUser> userManager, IUnitOfWork unitOfWork, ApplicationDbContext context)
         {
             _userManager = userManager;
             _unitOfWork = unitOfWork;
@@ -71,13 +71,13 @@ namespace RVPark.Web.Pages.Admin
 
             // Generate temporary password and hash it
             var tempPassword = GenerateRandomPassword();
-            var passwordHasher = new PasswordHasher<IdentityUser>();
+            var passwordHasher = new PasswordHasher<ApplicationUser>();
             appUser.PasswordHash = passwordHasher.HashPassword(appUser, tempPassword);
             
             // Update the user with hashed password
             await _context.SaveChangesAsync();
 
-            // Add user to role using IdentityUser for role management
+            // Add user to role using ApplicationUser for role management
             if (!string.IsNullOrEmpty(Input.Role))
             {
                 var identityUser = await _userManager.FindByIdAsync(appUser.Id);
