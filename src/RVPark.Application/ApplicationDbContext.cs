@@ -24,6 +24,8 @@ namespace RVPark.Application
         public DbSet<ProjectProposal> ProjectProposals { get; set; }
         public DbSet<ProjectProposalFile> ProjectProposalFiles { get; set; }
         public DbSet<Payment> Payments { get; set; }
+        public DbSet<ProjectNote> ProjectNotes { get; set; }
+
 
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
