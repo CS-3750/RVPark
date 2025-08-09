@@ -23,6 +23,15 @@ namespace RVPark.Web.Areas.Identity.Pages.Account
             _logger = logger;
         }
 
+        public IActionResult OnGet(string returnUrl = null)
+        {
+            if (!_signInManager.IsSignedIn(User))
+            {
+                return RedirectToPage("/Account/Login", new { area = "Identity", returnUrl });
+            }
+            return Page();
+        }
+
         public async Task<IActionResult> OnPost(string returnUrl = null)
         {
             await _signInManager.SignOutAsync();
