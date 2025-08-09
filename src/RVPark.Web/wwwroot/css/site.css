@@ -84,3 +84,11 @@ html, body {
     border: 1px solid rgba(var(--bs-secondary-rgb), 0.25);
     border-radius: 3px;
 }
+
+.icon-dark {
+    filter: brightness(0) saturate(100%) invert(0); /* pure black */
+}
+
+.icon-gray {
+    filter: brightness(0) saturate(100%) invert(0.35); /* dark gray */
+}

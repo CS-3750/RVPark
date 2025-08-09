@@ -14,8 +14,9 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - RVPark.Web</title>
+    <title>@ViewData["Title"] · Concept Center</title>
     <script type="importmap"></script>
+    <link rel="icon" type="image/png" href="~/images/concept_center_logo_transparent_bg.png" />
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
@@ -25,9 +26,11 @@
 
     <div class="wrapper">
         <nav class="sidebar-persistent p-3 d-flex flex-column">
-            <h4 class="text-white mb-4">
-                <a class="text-white text-decoration-none" asp-page="/Shared/Projects/Index">RVPark</a>
-            </h4>
+            <div class="my-2 py-2">
+                <a asp-page="/Shared/Projects/Index">
+                    <img src="~/images/wsu_concept_center_logo.svg" alt="The Concept Center" />
+                </a>
+            </div>
             @if (SignInManager.IsSignedIn(User))
             {
                 <ul class="nav flex-column mb-auto">
