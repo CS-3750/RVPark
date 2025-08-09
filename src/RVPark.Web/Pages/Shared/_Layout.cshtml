@@ -1,12 +1,11 @@
 ﻿@using Microsoft.AspNetCore.Identity
 @using RVPark.Core.Interfaces
-@inject UserManager<IdentityUser> UserManager
-@inject SignInManager<IdentityUser> SignInManager
-@inject IProjectService ProjectService
+@using RVPark.Core.Models
+@inject UserManager<ApplicationUser> UserManager
+@inject SignInManager<ApplicationUser> SignInManager
 
 @{
     var user = await UserManager.GetUserAsync(User);
-    var projectList = user != null ? await ProjectService.GetUserProjectsAsync(user.Id) : [];
 }
 
 <!DOCTYPE html>
@@ -34,6 +33,7 @@
             @if (SignInManager.IsSignedIn(User))
             {
                 <ul class="nav flex-column mb-auto">
+                    @* Account *@
                     <li class="nav-item">
                         <h6>
                             <a class="nav-link text-white text-truncate d-inline-block" style="max-width: 180px;" asp-area="Identity" asp-page="/Account/Manage/Index">
@@ -42,14 +42,8 @@
                             </a>
                         </h6>
                     </li>
-                    <li class="nav-item">
-                        <h6> 
-                            <a class="nav-link text-white" asp-page="/Shared/Projects/Index">
-                                <i class="bi bi-folder-plus me-1"></i>
-                                Projects
-                            </a>
-                        </h6>
-                    </li>
+                    
+                    @* Admin Tools *@
                     @if (await UserManager.IsInRoleAsync(user, "Admin"))
                     {
                         <li class="nav-item">
@@ -61,10 +55,30 @@
                             </h6>
                         </li>
                     }
+                    
+                    @* Projects *@
+                    <li class="nav-item">
+                        <h6> 
+                            <a class="nav-link text-white" asp-page="/Shared/Projects/Index">
+                                <i class="bi bi-folder-plus me-1"></i>
+                                Projects
+                            </a>
+                        </h6>
+                    </li>
+                    
+                    @* Messages *@
+                    <li class="nav-item">
+                        <h6>
+                            <a class="nav-link text-white" href="/shared/messages">
+                                <i class="bi bi-chat-dots me-1"></i>
+                                Messages
+                            </a>
+                        </h6>
+                    </li>
                 </ul>
             }
 
-            <!--Bottom of nav-->
+            @* Bottom of nav *@
             <div class="mt-auto">
                 <ul class="nav flex-column mb-auto">
                     @if (SignInManager.IsSignedIn(User))

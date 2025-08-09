@@ -54,10 +54,15 @@ namespace RVPark.Web.Pages.Shared.Projects
             if (id == null || id == 0)
             {
                 // New
-                Project = new Project { 
+                Project = new Project {
                     Title = "New Project",
                     Description = "Project description goes here...",
-                    StatusEnum = ProjectStatus.NewlySubmitted 
+                    StatusEnum = ProjectStatus.NewlySubmitted
+                };
+                ProjectUser = new ProjectUser
+                {
+                    CanAddTasks = true,
+                    CanEditTasks = true
                 };
             }
             else

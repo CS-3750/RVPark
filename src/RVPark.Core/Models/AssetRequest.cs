@@ -61,6 +61,6 @@ namespace RVPark.Core.Models
         public Project Project { get; set; }
 
         [ForeignKey(nameof(CreatedByApplicationUserId))] 
-        public IdentityUser ApplicationUser { get; set; }
+        public ApplicationUser ApplicationUser { get; set; }
     }
 }

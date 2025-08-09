@@ -45,7 +45,7 @@ builder.Services.AddSingleton<IAmazonS3>(provider =>
 builder.Services.AddScoped<IS3Service, S3Service>();
 
 // Add Identity services with ApplicationDbContext
-builder.Services.AddIdentity<IdentityUser, IdentityRole>()
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 

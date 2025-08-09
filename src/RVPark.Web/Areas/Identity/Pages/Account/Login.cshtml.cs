@@ -18,7 +18,7 @@ using RVPark.Core.Models;
 
 namespace RVPark.Web.Areas.Identity.Pages.Account
 {
-    public class LoginModel(SignInManager<IdentityUser> signInManager, ILogger<LoginModel> logger)
+    public class LoginModel(SignInManager<ApplicationUser> signInManager, ILogger<LoginModel> logger)
         : PageModel
     {
         /// <summary>

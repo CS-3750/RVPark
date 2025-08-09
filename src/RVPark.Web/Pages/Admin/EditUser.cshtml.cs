@@ -17,10 +17,10 @@ namespace RVPark.Application.Pages.Admin
     public class EditUserModel : PageModel
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly UserManager<ApplicationUser> _userManager;
         private readonly ApplicationDbContext _context;
 
-        public EditUserModel(IUnitOfWork unitOfWork, UserManager<IdentityUser> userManager, ApplicationDbContext context)
+        public EditUserModel(IUnitOfWork unitOfWork, UserManager<ApplicationUser> userManager, ApplicationDbContext context)
         {
             _unitOfWork = unitOfWork;
             _userManager = userManager;
@@ -84,7 +84,7 @@ namespace RVPark.Application.Pages.Admin
 
             _unitOfWork.User.Update(user);
 
-            // Update role if changed - use IdentityUser for role management
+            // Update role if changed - use ApplicationUser for role management
             var identityUser = await _userManager.FindByIdAsync(user.Id);
             if (identityUser != null)
             {
