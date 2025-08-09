@@ -20,7 +20,7 @@ public class MessagesModel(UnitOfWork _unitOfWork) : PageModel
         if (claim == null)
             return;
 
-        Users = _unitOfWork.User.GetAll().ToList();
+        Users = _unitOfWork.User.GetAll(u => u.Id != claim.Value).ToList();
         
         Messages = _unitOfWork.Message
             .GetAll(m => m.ReceiverId == claim.Value
@@ -37,6 +37,7 @@ public class MessagesModel(UnitOfWork _unitOfWork) : PageModel
             return RedirectToPage();
         
         NewMessage.SenderId = claim.Value;
+        NewMessage.CreatedAt = DateTime.UtcNow;
         _unitOfWork.Message.Add(NewMessage);
         return RedirectToPage();
     }
