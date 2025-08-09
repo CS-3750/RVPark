@@ -3,11 +3,9 @@
 @using RVPark.Core.Models
 @inject UserManager<ApplicationUser> UserManager
 @inject SignInManager<ApplicationUser> SignInManager
-@inject IProjectService ProjectService
 
 @{
     var user = await UserManager.GetUserAsync(User);
-    var projectList = user != null ? await ProjectService.GetUserProjectsAsync(user.Id) : [];
 }
 
 <!DOCTYPE html>
