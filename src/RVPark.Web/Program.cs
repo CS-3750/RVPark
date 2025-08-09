@@ -20,8 +20,6 @@ Console.WriteLine($"Using connection string: {connectionString}");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 
-builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true).AddEntityFrameworkStores<ApplicationDbContext>();
-
 // DB Initializer
 builder.Services.AddScoped<DBInitializer>();
 builder.Services.AddSingleton<IEmailSender, FakeEmailSender>();
