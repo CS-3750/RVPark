@@ -25,8 +25,8 @@
 <body>
 
     <div class="wrapper">
-        <nav class="sidebar-persistent p-3 d-flex flex-column">
-            <div class="my-2 py-2">
+        <nav class="sidebar-persistent py-3 px-1 d-flex flex-column">
+            <div class="col-md-10 offset-1 mt-2 mb-3 py-2">
                 <a asp-page="/Shared/Projects/Index">
                     <img src="~/images/wsu_concept_center_logo.svg" alt="The Concept Center" />
                 </a>
@@ -35,22 +35,30 @@
             {
                 <ul class="nav flex-column mb-auto">
                     <li class="nav-item">
-                        <a class="nav-link text-white text-truncate d-inline-block" style="max-width: 150px;" asp-area="Identity" asp-page="/Account/Manage/Index">
-                            @User.Identity?.Name
-                        </a>
+                        <h6>
+                            <a class="nav-link text-white text-truncate d-inline-block" style="max-width: 180px;" asp-area="Identity" asp-page="/Account/Manage/Index">
+                                <i class="bi bi-person-circle me-1"></i>
+                                @User.Identity?.Name
+                            </a>
+                        </h6>
                     </li>
-                    <hr />
                     <li class="nav-item">
-                        <a class="nav-link text-white" asp-page="/Shared/Projects/Index">
-                            Projects
-                        </a>
+                        <h6> 
+                            <a class="nav-link text-white" asp-page="/Shared/Projects/Index">
+                                <i class="bi bi-folder-plus me-1"></i>
+                                Projects
+                            </a>
+                        </h6>
                     </li>
                     @if (await UserManager.IsInRoleAsync(user, "Admin"))
                     {
                         <li class="nav-item">
-                            <a class="nav-link text-white" href="/admin/admintools">
-                                Admin Tools
-                            </a>
+                            <h6>
+                                <a class="nav-link text-white" href="/admin/admintools">
+                                    <i class="bi bi-wrench-adjustable-circle me-1"></i>
+                                    Admin Tools
+                                </a>
+                            </h6>
                         </li>
                     }
                 </ul>
@@ -62,19 +70,23 @@
                     @if (SignInManager.IsSignedIn(User))
                     {
                         <li class="nav-item">
-                            <a class="nav-link active text-white" asp-area="Identity" asp-page="/Account/Logout">
-                                <i class="bi bi-door-open me-1"></i>
-                                Logout
-                            </a>
+                            <h6>
+                                <a class="nav-link active text-white" asp-area="Identity" asp-page="/Account/Logout">
+                                    <i class="bi bi-door-open me-1"></i>
+                                    Logout
+                                </a>
+                            </h6>
                         </li>
                     }
                     else
                     {
                         <li class="nav-item">
-                            <a class="nav-link active text-white" asp-area="Identity" asp-page="/Account/Login">
-                                <i class="bi bi-person-badge me-1"></i>
-                                Login
-                            </a>
+                            <h6>
+                                <a class="nav-link active text-white" asp-area="Identity" asp-page="/Account/Login">
+                                    <i class="bi bi-person-badge me-1"></i>
+                                    Login
+                                </a>
+                            </h6>
                         </li>
                     }
                 </ul>
