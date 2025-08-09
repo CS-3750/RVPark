@@ -23,11 +23,12 @@
         <div class="tab-pane fade show active">
             <div class="row mt-3">
                 <div class="col-md-8">
+                    
+                    @* New Messsage *@
+                    <h4>New Message</h4>
                     <section>
-                        <h4>Send a new message for project: @Model.CurrentProject.Title</h4>
-                        <hr />
                         <form method="post">
-                            <input type="hidden" asp-for="NewMessage.ProjectId" value="@Model.CurrentProject.Id" />
+                            <input type="hidden" asp-for="NewMessage.ProjectId" value="@Model.CurrentProject.Id"/>
 
                             <div class="mb-3">
                                 <label asp-for="NewMessage.ReceiverId" class="form-label">To</label>
@@ -48,18 +49,34 @@
                             </div>
                         </form>
                     </section>
-
+                    
+                    @* Existing Conversations *@
                     <section class="mt-5">
-                        <h4>Your Conversations for project: @Model.CurrentProject.Title</h4>
-                        <hr />
+                        <h4>Previous Messages</h4>
+                        <hr/>
                         @if (Model.Messages.Any())
                         {
-                            @foreach(var message in Model.Messages.OrderByDescending(m => m.CreatedAt))
+                            @foreach (var message in Model.Messages.OrderByDescending(m => m.CreatedAt))
                             {
+                                var isOutgoing = message.SenderId == Model.CurrentUserId;
+                                var cardHeaderClass = isOutgoing ? "" : "bg-primary text-white";
+                                var timestampClass = isOutgoing ? "text-muted" : "text-white-50";
+
                                 <div class="card mb-3">
-                                    <div class="card-header">
-                                        <strong>From:</strong> @message.Sender.FirstName @message.Sender.LastName
-                                        <span class="text-muted float-end">@message.CreatedAt.ToLocalTime().ToString("f")</span>
+                                    <div class="card-header @cardHeaderClass">
+                                        @if (isOutgoing)
+                                        {
+                                            <strong>To:</strong>
+                                            @message.Receiver.FirstName
+                                            @message.Receiver.LastName
+                                        }
+                                        else
+                                        {
+                                            <strong>From:</strong>
+                                            @message.Sender.FirstName
+                                            @message.Sender.LastName
+                                        }
+                                        <span class="float-end @timestampClass">@message.CreatedAt.ToLocalTime().ToString("f")</span>
                                     </div>
                                     <div class="card-body">
                                         <p class="card-text">@message.Content</p>
@@ -72,6 +89,7 @@
                             <p>No messages in this project yet.</p>
                         }
                     </section>
+                    <hr/>
                 </div>
             </div>
         </div>

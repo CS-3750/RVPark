@@ -15,6 +15,7 @@ public class MessagesModel(UnitOfWork _unitOfWork) : PageModel
     public List<ApplicationUser> Users { get; set; } = [];
     public List<Project> UserProjects { get; set; } = [];
     public Project CurrentProject { get; set; }
+    public string CurrentUserId { get; set; }
 
     public void OnGet(int? projectId)
     {
@@ -23,10 +24,10 @@ public class MessagesModel(UnitOfWork _unitOfWork) : PageModel
         if (claim == null)
             return;
 
-        var userId = claim.Value;
+        CurrentUserId = claim.Value;
 
         UserProjects = _unitOfWork.ProjectUser
-            .GetAll(pu => pu.ApplicationUserId == userId, includes: "Project")
+            .GetAll(pu => pu.ApplicationUserId == CurrentUserId, includes: "Project")
             .Select(pu => pu.Project)
             .OrderBy(p => p.Name)
             .ToList();
@@ -44,11 +45,11 @@ public class MessagesModel(UnitOfWork _unitOfWork) : PageModel
                     .ToList();
 
                 Users = _unitOfWork.User
-                    .GetAll(u => u.Id != userId && projectUserIds.Contains(u.Id))
+                    .GetAll(u => u.Id != CurrentUserId && projectUserIds.Contains(u.Id))
                     .ToList();
 
                 Messages = _unitOfWork.Message
-                    .GetAll(m => m.ProjectId == CurrentProject.Id && (m.ReceiverId == userId || m.SenderId == userId),
+                    .GetAll(m => m.ProjectId == CurrentProject.Id && (m.ReceiverId == CurrentUserId || m.SenderId == CurrentUserId),
                         includes: "Sender,Receiver")
                     .ToList();
             }
