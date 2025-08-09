@@ -12,19 +12,27 @@ namespace RVPark.Core.Models
     {
         [Key] 
         public int Id { get; set; }
+        
+        [Required]
+        public string SenderId { get; set; }
+        
+        [Required]
+        public string ReceiverId { get; set; }
 
-        public int ProjectId { get; set; }
-        public string ApplicationUserId { get; set; }
-
-        [Required] 
+        [Required, MaxLength(5000)] 
         public string Content { get; set; }
-        public DateTime CreatedAt { get; set; }
-        public bool EmailsSent { get; set; }
 
         [ForeignKey(nameof(ProjectId))]
         public Project Project { get; set; }
 
-        [ForeignKey(nameof(ApplicationUserId))]
-        public ApplicationUser ApplicationUser { get; set; }
+        [ForeignKey(nameof(SenderId))]
+        public ApplicationUser Sender { get; set; }
+
+        [ForeignKey(nameof(ReceiverId))]
+        public ApplicationUser Receiver { get; set; }
+        
+        public int ProjectId { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public bool EmailsSent { get; set; }
     }
 }

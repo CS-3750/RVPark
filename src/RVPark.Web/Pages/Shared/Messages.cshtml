@@ -1,0 +1,37 @@
+@page
+@using System.Security.Cryptography
+@model RVPark.Web.Pages.Shared.MessagesModel
+
+@{
+}
+
+
+<form method="post">
+    <select asp-for="NewMessage.ReceiverId">
+        <option value="">-- Select a user --</option>
+        @foreach (var user in Model.Users)
+        {
+            <option value="@user.Id">@user.FirstName @user.LastName</option>
+        }
+    </select>
+    
+    <label for="receiver">Receiver</label>
+    
+    <input type="text" asp-for="NewMessage.Content" id="content"/>
+    <label for="content">Message</label>
+    
+    <input type="text" asp-for="NewMessage.ProjectId" id="project"/>
+    <label for="project">Project</label>
+    
+    <button type="submit">Send</button>
+</form>
+
+@foreach (var message in Model.Messages)
+{
+    <div class="card">
+        <p>Sender: @message.Sender.FirstName</p>
+        <p>Receiver: @message.Receiver.FirstName</p>
+        <p>@message.Content</p>
+        <br/>
+    </div>
+}

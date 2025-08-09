@@ -12,8 +12,8 @@ using RVPark.Application;
 namespace RVPark.Application.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250721080235_NullableLeadInternId")]
-    partial class NullableLeadInternId
+    [Migration("20250809031709_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -287,10 +287,19 @@ namespace RVPark.Application.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<long?>("FileSizeBytes")
+                        .HasColumnType("bigint");
+
+                    b.Property<bool>("IsLatestVersion")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
+
+                    b.Property<int?>("ParentFileId")
+                        .HasColumnType("int");
 
                     b.Property<string>("Type")
                         .IsRequired()
@@ -305,9 +314,18 @@ namespace RVPark.Application.Migrations
                         .HasMaxLength(1024)
                         .HasColumnType("nvarchar(1024)");
 
+                    b.Property<int>("Version")
+                        .HasColumnType("int");
+
+                    b.Property<string>("VersionDescription")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
                     b.HasKey("Id");
 
                     b.HasIndex("CreatedByApplicationUserId");
+
+                    b.HasIndex("ParentFileId");
 
                     b.ToTable("Files");
                 });
@@ -320,12 +338,9 @@ namespace RVPark.Application.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("ApplicationUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<string>("Content")
                         .IsRequired()
+                        .HasMaxLength(5000)
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedAt")
@@ -337,11 +352,21 @@ namespace RVPark.Application.Migrations
                     b.Property<int>("ProjectId")
                         .HasColumnType("int");
 
+                    b.Property<string>("ReceiverId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("SenderId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("ApplicationUserId");
-
                     b.HasIndex("ProjectId");
+
+                    b.HasIndex("ReceiverId");
+
+                    b.HasIndex("SenderId");
 
                     b.ToTable("Messages");
                 });
@@ -436,6 +461,36 @@ namespace RVPark.Application.Migrations
                     b.HasIndex("ProjectId");
 
                     b.ToTable("ProjectFiles");
+                });
+
+            modelBuilder.Entity("RVPark.Core.Models.ProjectNote", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("ProjectId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProjectId");
+
+                    b.ToTable("ProjectNotes");
                 });
 
             modelBuilder.Entity("RVPark.Core.Models.ProjectProposal", b =>
@@ -630,6 +685,46 @@ namespace RVPark.Application.Migrations
                     b.ToTable("ProjectUserHourLogs");
                 });
 
+            modelBuilder.Entity("RVPark.Core.Models.TimeEntry", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ApplicationUserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<decimal>("Hours")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("ProjectTaskId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ApplicationUserId");
+
+                    b.HasIndex("ProjectTaskId");
+
+                    b.ToTable("TimeEntries");
+                });
+
             modelBuilder.Entity("RVPark.Core.Models.ApplicationUser", b =>
                 {
                     b.HasBaseType("Microsoft.AspNetCore.Identity.IdentityUser");
@@ -729,26 +824,40 @@ namespace RVPark.Application.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("RVPark.Core.Models.File", "ParentFile")
+                        .WithMany("ChildVersions")
+                        .HasForeignKey("ParentFileId");
+
                     b.Navigation("ApplicationUser");
+
+                    b.Navigation("ParentFile");
                 });
 
             modelBuilder.Entity("RVPark.Core.Models.Message", b =>
                 {
-                    b.HasOne("RVPark.Core.Models.ApplicationUser", "ApplicationUser")
-                        .WithMany()
-                        .HasForeignKey("ApplicationUserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("RVPark.Core.Models.Project", "Project")
                         .WithMany()
                         .HasForeignKey("ProjectId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("ApplicationUser");
+                    b.HasOne("RVPark.Core.Models.ApplicationUser", "Receiver")
+                        .WithMany()
+                        .HasForeignKey("ReceiverId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("RVPark.Core.Models.ApplicationUser", "Sender")
+                        .WithMany()
+                        .HasForeignKey("SenderId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.Navigation("Project");
+
+                    b.Navigation("Receiver");
+
+                    b.Navigation("Sender");
                 });
 
             modelBuilder.Entity("RVPark.Core.Models.Payment", b =>
@@ -777,6 +886,17 @@ namespace RVPark.Application.Migrations
                         .IsRequired();
 
                     b.Navigation("File");
+
+                    b.Navigation("Project");
+                });
+
+            modelBuilder.Entity("RVPark.Core.Models.ProjectNote", b =>
+                {
+                    b.HasOne("RVPark.Core.Models.Project", "Project")
+                        .WithMany()
+                        .HasForeignKey("ProjectId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Project");
                 });
@@ -848,6 +968,30 @@ namespace RVPark.Application.Migrations
                         .IsRequired();
 
                     b.Navigation("ProjectUser");
+                });
+
+            modelBuilder.Entity("RVPark.Core.Models.TimeEntry", b =>
+                {
+                    b.HasOne("RVPark.Core.Models.ApplicationUser", "ApplicationUser")
+                        .WithMany()
+                        .HasForeignKey("ApplicationUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("RVPark.Core.Models.ProjectTask", "ProjectTask")
+                        .WithMany()
+                        .HasForeignKey("ProjectTaskId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ApplicationUser");
+
+                    b.Navigation("ProjectTask");
+                });
+
+            modelBuilder.Entity("RVPark.Core.Models.File", b =>
+                {
+                    b.Navigation("ChildVersions");
                 });
 
             modelBuilder.Entity("RVPark.Core.Models.Project", b =>
