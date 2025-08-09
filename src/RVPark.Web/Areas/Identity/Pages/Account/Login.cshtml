@@ -5,8 +5,53 @@
     ViewData["Title"] = "Log in";
 }
 
-<h1>@ViewData["Title"]</h1>
-<div class="row">
+<div class="container my-4">
+    <div class="card col-md-6 offset-3 my-3 px-5 py-3">
+        <div class="row my-4">
+            <form id="account" method="post">
+                <div class="col-md-8 offset-2 my-5">
+                    <img class="icon-dark" src="~/images/wsu_concept_center_logo.svg" alt="Concept Center Logo" />
+                </div>
+                <div class="col-md-8 offset-2 mb-4">
+                    <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+                    <div class="form-group mb-3">
+                        <label asp-for="Input.Email" class="form-label">Email</label>
+                        <input asp-for="Input.Email" class="form-control" autocomplete="username" aria-required="true" />
+                        <span asp-validation-for="Input.Email" class="text-danger"></span>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label asp-for="Input.Password" class="form-label">Password</label>
+                        <input asp-for="Input.Password" class="form-control" autocomplete="current-password" aria-required="true" />
+                        <span asp-validation-for="Input.Password" class="text-danger"></span>
+                        <a id="forgot-password" class="link-primary text-decoration-none" asp-page="./ForgotPassword">Forgot your password?</a>
+                    </div>
+                </div>
+                <div class="col-md-8 offset-2 mb-4">
+                    <div class="text-center">
+                        <div class="checkbox mb-1">
+                            <label asp-for="Input.RememberMe" class="form-label">
+                                <input class="form-check-input" asp-for="Input.RememberMe" />
+                                @Html.DisplayNameFor(m => m.Input.RememberMe)
+                            </label>
+                        </div>
+                        <button id="login-submit" type="submit" class="btn btn-lg btn-primary">
+                            <i class="bi bi-person-badge me-1"></i>
+                            Log in
+                        </button>
+                    </div>
+                </div>
+                <div class="col-md-8 offset-2 mb-3 text-center">
+                    Don't have an account? <a asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl" class="link-primary text-decoration-none">Register here.</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+
+
+@* <div class="row">
     <div class="col-md-4">
         <section>
             <form id="account" method="post">
@@ -76,7 +121,7 @@
             }
         </section>
     </div>
-</div>
+</div> *@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

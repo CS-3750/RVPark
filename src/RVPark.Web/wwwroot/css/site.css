@@ -50,6 +50,16 @@ html, body {
     text-overflow: ellipsis; /* Use ellipsis to indicate clipped text */
 }
 
+.sidebar-persistent .nav-item {
+    background-color: transparent;
+    border-radius: 0.25em;
+    transition: background-color 0.15s ease-in-out;
+}
+
+.sidebar-persistent .nav-item:hover {
+    background-color: rgba(255, 255, 255, 0.1); /* Slightly lighter on hover */
+}
+
 .main-content {
     max-width: 100%;
     flex-grow: 1; /* Allow main content to take up remaining space */
@@ -83,4 +93,12 @@ html, body {
     padding: 0.75rem;
     border: 1px solid rgba(var(--bs-secondary-rgb), 0.25);
     border-radius: 3px;
+}
+
+.icon-dark {
+    filter: brightness(0) saturate(100%) invert(0); /* pure black */
+}
+
+.icon-gray {
+    filter: brightness(0) saturate(100%) invert(0.35); /* dark gray */
 }

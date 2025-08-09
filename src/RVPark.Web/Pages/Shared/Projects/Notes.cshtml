@@ -6,52 +6,54 @@
 }
 
 <div class="container mt-4">
-    <a asp-page="/Shared/Projects/Upsert" asp-route-id="@Model.ProjectId" class="btn btn-link mb-3">
-        <i class="bi bi-arrow-left"></i> Back to Project
-    </a>
+    <div class="container border rounded p-4 bg-white shadow-sm">
+        <a asp-page="/Shared/Projects/Upsert" asp-route-id="@Model.ProjectId" class="btn btn-link mb-3">
+            <i class="bi bi-arrow-left"></i> Back to Project
+        </a>
 
-    <h2>Notes for Project #@Model.ProjectId</h2>
+        <h2>Notes for Project #@Model.ProjectId</h2>
 
-    <form method="post" class="mb-4">
-        <div class="mb-3">
-            <label asp-for="Title" class="form-label">Title</label>
-            <input asp-for="Title" class="form-control" />
-            <span asp-validation-for="Title" class="text-danger"></span>
-        </div>
-        <div class="mb-3">
-            <label asp-for="Content" class="form-label">Note</label>
-            <textarea asp-for="Content" class="form-control" rows="3"></textarea>
-            <span asp-validation-for="Content" class="text-danger"></span>
-        </div>
-        <button type="submit" class="btn btn-primary">Add Note</button>
-    </form>
+        <form method="post" class="mb-4">
+            <div class="mb-3">
+                <label asp-for="Title" class="form-label">Title</label>
+                <input asp-for="Title" class="form-control" />
+                <span asp-validation-for="Title" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Content" class="form-label">Note</label>
+                <textarea asp-for="Content" class="form-control" rows="3"></textarea>
+                <span asp-validation-for="Content" class="text-danger"></span>
+            </div>
+            <button type="submit" class="btn btn-primary">Add Note</button>
+        </form>
 
-    <hr />
+        <hr />
 
-    <div>
-        @if (Model.ProjectNotes != null && Model.ProjectNotes.Any())
-        {
-            <div class="row row-cols-1 row-cols-md-2 g-4">
-                @foreach (var note in Model.ProjectNotes)
-                {
-                    <div class="col">
-                        <div class="card mb-3">
-                            <div class="card-body">
-                                <h5 class="card-title">@note.Title</h5>
-                                <p class="card-text">@note.Content</p>
-                            </div>
-                            <div class="card-footer text-muted">
-                                @note.Created.ToString("g")
+        <div>
+            @if (Model.ProjectNotes != null && Model.ProjectNotes.Any())
+            {
+                <div class="row row-cols-1 row-cols-md-2 g-4">
+                    @foreach (var note in Model.ProjectNotes)
+                    {
+                        <div class="col">
+                            <div class="card mb-3">
+                                <div class="card-body">
+                                    <h5 class="card-title">@note.Title</h5>
+                                    <p class="card-text">@note.Content</p>
+                                </div>
+                                <div class="card-footer text-muted">
+                                    @note.Created.ToString("g")
+                                </div>
                             </div>
                         </div>
-                    </div>
-                }
-            </div>
-        }
-        else
-        {
-            <p>No notes yet for this project.</p>
-        }
+                    }
+                </div>
+            }
+            else
+            {
+                <p>No notes yet for this project.</p>
+            }
+        </div>
     </div>
 </div>
 
