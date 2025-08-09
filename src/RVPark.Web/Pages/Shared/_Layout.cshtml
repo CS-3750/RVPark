@@ -42,14 +42,6 @@
                             </a>
                         </h6>
                     </li>
-                    <li class="nav-item">
-                        <h6> 
-                            <a class="nav-link text-white" asp-page="/Shared/Projects/Index">
-                                <i class="bi bi-folder-plus me-1"></i>
-                                Projects
-                            </a>
-                        </h6>
-                    </li>
                     
                     @* Admin Tools *@
                     @if (await UserManager.IsInRoleAsync(user, "Admin"))
@@ -64,16 +56,29 @@
                         </li>
                     }
                     
+                    @* Projects *@
+                    <li class="nav-item">
+                        <h6> 
+                            <a class="nav-link text-white" asp-page="/Shared/Projects/Index">
+                                <i class="bi bi-folder-plus me-1"></i>
+                                Projects
+                            </a>
+                        </h6>
+                    </li>
+                    
                     @* Messages *@
                     <li class="nav-item">
-                        <a class="nav-link text-white" href="/shared/messages">
-                            Messages
-                        </a>
+                        <h6>
+                            <a class="nav-link text-white" href="/shared/messages">
+                                <i class="bi bi-chat-dots me-1"></i>
+                                Messages
+                            </a>
+                        </h6>
                     </li>
                 </ul>
             }
 
-            <!--Bottom of nav-->
+            @* Bottom of nav *@
             <div class="mt-auto">
                 <ul class="nav flex-column mb-auto">
                     @if (SignInManager.IsSignedIn(User))
