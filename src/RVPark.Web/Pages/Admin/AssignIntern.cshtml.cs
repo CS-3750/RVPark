@@ -34,7 +34,7 @@ namespace RVPark.Application.Pages.Admin
             Projects = projects.Select(p => new ProjectViewModel
             {
                 Id = p.Id.ToString(), // Ensure as string for selection
-                Name = p.Name
+                Name = p.Name ?? p.Title // Use Name if available, otherwise fall back to Title
             }).ToList();
 
             var interns = await _unitOfWork.User.GetAllAsync();
